@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers } from '../../api/userApi';
+import { getAllApplications } from '../../api/applicationApi';
 import { useAuth } from '../../context/AuthContext';
 import ReusableTable from '../../components/table/ReusableTable';
 import TableOption from '../../components/table/TableOption';
@@ -37,14 +37,14 @@ const Application = () => {
 
   const usersQuery = useQuery({
     queryKey: [
-      'users',
+      'applicantions',
       pageIndex,
       pageSize,
       //   categoryValue,
       //   depreciationRate,
     ],
     queryFn: () =>
-      getAllUsers(
+      getAllApplications(
         token,
         pageIndex + 1,
         pageSize
@@ -68,25 +68,76 @@ const Application = () => {
     () => [
       { Header: 'Sn', accessor: (row, i) => i + 1 },
       {
-        Header: 'FullName',
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
-        Cell: ({ value }) => <div className="w-40">{value}</div>,
+        Header: 'Applicant By',
+        accessor: 'userId',
+        Cell: ({ row }) => {
+          const userId = row.original.userId || {};
+          const { firstName = '', middleName = '', surName = '' } = userId;
+
+          return (
+            <div className="w-48">
+              {`${firstName} ${middleName} ${surName}`.trim()}
+            </div>
+          );
+        },
       },
       {
-        Header: 'Phone Number',
-        accessor: 'phone',
+        Header: 'Application ID',
+        accessor: 'applicationId',
         Cell: ({ value }) => <div className="w-20">{value}</div>,
       },
       {
-        Header: 'Email Address',
-        accessor: 'email',
+        Header: 'User ID',
+        accessor: 'userId.userId',
         Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
+
       {
-        Header: 'Role',
-        accessor: 'role',
+        Header: 'Status',
+        accessor: 'status',
         Cell: ({ value }) => <div className="w-32">{value}</div>,
       },
+      {
+        Header: 'Stage',
+        accessor: 'stage',
+        Cell: ({ value }) => <div className="w-32">{value}</div>,
+      },
+      {
+        Header: 'Verified',
+        accessor: 'isVerified',
+        Cell: ({ value }) => <div className="w-32">{value ? 'Yes' : 'No'}</div>,
+      },
+      {
+        Header: 'Rejection Reason',
+        accessor: 'rejectionReason',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>, // Display 'N/A' if null
+      },
+      {
+        Header: 'Exam Date',
+        accessor: 'userId.examDate',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>,
+      },
+      {
+        Header: 'Exam Venue',
+        accessor: 'userId.examVenue',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>,
+      },
+      {
+        Header: 'Exam Time',
+        accessor: 'userId.examTime',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>,
+      },
+      {
+        Header: 'CBT Result',
+        accessor: 'cbtResult',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>, // Display 'N/A' if null
+      },
+      {
+        Header: 'Interview Result',
+        accessor: 'interviewResult',
+        Cell: ({ value }) => <div className="w-40">{value || 'N/A'}</div>, // Display 'N/A' if null
+      },
+
       {
         Header: 'Date Created',
         accessor: 'createdAt',
@@ -104,18 +155,7 @@ const Application = () => {
             <ul className="flex flex-col space-y-2">
               <li className="block p-2 text-sm text-primary text-left">
                 <button
-                //   onClick={() =>
-                //     openModal(
-                //       <EditCategoryForm
-                //         categoryId={row.original._id}
-                //         rate={row.original.depreciationRate}
-                //         name={row.original.name}
-                //         onClose={closeModal}
-                //         refetch={categoryQuery.refetch}
-                //         setIsModalOpen={setIsModalOpen}
-                //       />
-                //     )
-                //   }
+                // onClick={() => openModal(<EditCategoryForm ... />)}
                 >
                   Edit
                 </button>
@@ -130,8 +170,8 @@ const Application = () => {
 
   return (
     <>
+      <p className="text-primary text-2xl font-bold">Applications</p>
       <div className="flex justify-between m-8 space-x-4 items-start">
-        <p className="text-primary text-2xl font-bold">Applicantions</p>
         {/* <FilterSearch>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -158,18 +198,15 @@ const Application = () => {
             </div>
           </div>
         </FilterSearch> */}
-        <div className="flex flex-row space-x-2 h-[42px]">
-          <Button
-            label="Create User"
-            onClick={() => navigate('/app/create-cuser')}
-          />
-        </div>
       </div>
 
       {usersQuery.isLoading ? (
         <Loader loading={usersQuery.isLoading} />
       ) : usersQuery.data?.data?.length === 0 ? (
-        <EmptyTable columns={columns} message="No users records found." />
+        <EmptyTable
+          columns={columns}
+          message="No applicantion records found."
+        />
       ) : (
         <ReusableTable
           columns={columns}
