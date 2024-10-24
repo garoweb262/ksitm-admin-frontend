@@ -68,7 +68,7 @@ const Application = () => {
     () => [
       { Header: 'Sn', accessor: (row, i) => i + 1 },
       {
-        Header: 'Applicant By',
+        Header: 'Applied By',
         accessor: 'userId',
         Cell: ({ row }) => {
           const userId = row.original.userId || {};
