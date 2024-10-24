@@ -1,45 +1,193 @@
-import React, {useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { getAllUsers } from '../../api/userApi';
+import { useAuth } from '../../context/AuthContext';
+import ReusableTable from '../../components/table/ReusableTable';
+import TableOption from '../../components/table/TableOption';
 import Button from '../../components/button/Button';
-import { getUserApplication } from '../../api/applicationApi';
-import { toast } from 'react-toastify';
-import { useNavigate } from "react-router-dom";
-import ApplicationForm from './form/ApplicationForm'
-
+import FilterSearch from '../../components/filter/FilterSearch';
+import DateInputField from '../../components/control/DateInputField';
+import SelectField from '../../components/control/SelectField';
+import FormatDate from '../../components/table/FormatDate';
+import Loader from '../../components/loader/Loader';
+import EmptyTable from '../../components/table/EmptyTable';
+import Modal from '../../components/modal/Modal';
 const Application = () => {
-  const [dummyData, setDummyData] = useState(null);
   const navigate = useNavigate();
-  
-  const getApplicationDetails = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await getUserApplication(token);
-      if (response.status === 'success') {
-        const data = response.data; 
-        setDummyData(data);
-        // console.log(data); 
-      } else {
-        
-        if (response.statusCode === 404) {
-          console.log('Fill application form below');
-        } else {
-          console.log('An unexpected error occurred. Please try again.');
-        }
-      }
-    } catch (error) {
-      // console.error("Error:", error);
-      // toast.error("Error:", error);
-    }
+  const { state } = useAuth();
+  const { token } = state;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+  const [categoryValue, setCategoryValue] = useState('');
+  const [depreciationRate, setDepreciationRate] = useState('');
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
   };
 
-  useEffect(() => {
-    getApplicationDetails();
-  }, []);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent(null);
+  };
+
+  const usersQuery = useQuery({
+    queryKey: [
+      'users',
+      pageIndex,
+      pageSize,
+      //   categoryValue,
+      //   depreciationRate,
+    ],
+    queryFn: () =>
+      getAllUsers(
+        token,
+        pageIndex + 1,
+        pageSize
+        // categoryValue,
+        // depreciationRate
+      ),
+    onSuccess: (data) => {
+      console.log(data);
+      setTotalPages(data.totalPages);
+    },
+    onError: (error) => {
+      console.error('Error fetching categories:', error);
+    },
+  });
+
+  const handleFilterChange = () => {
+    usersQuery.refetch();
+  };
+
+  const columns = useMemo(
+    () => [
+      { Header: 'Sn', accessor: (row, i) => i + 1 },
+      {
+        Header: 'FullName',
+        accessor: (row) => `${row.firstname} ${row.lastname}`,
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
+        Header: 'Phone Number',
+        accessor: 'phone',
+        Cell: ({ value }) => <div className="w-20">{value}</div>,
+      },
+      {
+        Header: 'Email Address',
+        accessor: 'email',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
+        Header: 'Role',
+        accessor: 'role',
+        Cell: ({ value }) => <div className="w-32">{value}</div>,
+      },
+      {
+        Header: 'Date Created',
+        accessor: 'createdAt',
+        Cell: ({ value }) => (
+          <div className="w-40">
+            {' '}
+            <FormatDate value={value} />
+          </div>
+        ),
+      },
+      {
+        Header: 'Action',
+        Cell: ({ row }) => (
+          <TableOption>
+            <ul className="flex flex-col space-y-2">
+              <li className="block p-2 text-sm text-primary text-left">
+                <button
+                //   onClick={() =>
+                //     openModal(
+                //       <EditCategoryForm
+                //         categoryId={row.original._id}
+                //         rate={row.original.depreciationRate}
+                //         name={row.original.name}
+                //         onClose={closeModal}
+                //         refetch={categoryQuery.refetch}
+                //         setIsModalOpen={setIsModalOpen}
+                //       />
+                //     )
+                //   }
+                >
+                  Edit
+                </button>
+              </li>
+            </ul>
+          </TableOption>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
-    <div className="w-full">
-       
+    <>
+      <div className="flex justify-between m-8 space-x-4 items-start">
+        <p className="text-primary text-2xl font-bold">Applicantions</p>
+        {/* <FilterSearch>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <SelectField
+                label="Category Name"
+                name="name"
+                value={categoryValue}
+                onChange={(e) => {
+                  setCategoryValue(e.target.value);
+                  handleFilterChange();
+                }}
+              />
+            </div>
+            <div>
+              <SelectField
+                label="Depreciation Rate"
+                name="depreciationRate"
+                value={depreciationRate}
+                onChange={(e) => {
+                  setDepreciationRate(e.target.value);
+                  handleFilterChange();
+                }}
+              />
+            </div>
+          </div>
+        </FilterSearch> */}
+        <div className="flex flex-row space-x-2 h-[42px]">
+          <Button
+            label="Create User"
+            onClick={() => navigate('/app/create-cuser')}
+          />
+        </div>
+      </div>
 
-    </div>
-  )
-}
-
-export default Application
+      {usersQuery.isLoading ? (
+        <Loader loading={usersQuery.isLoading} />
+      ) : usersQuery.data?.data?.length === 0 ? (
+        <EmptyTable columns={columns} message="No users records found." />
+      ) : (
+        <ReusableTable
+          columns={columns}
+          data={usersQuery.data?.data || []}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setPageIndex(newPage)}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPageIndex(0);
+          }}
+        />
+      )}
+      {/* <Modal isOpen={isModalOpen} onClose={closeModal} title="Action Modal">
+        {modalContent}
+      </Modal> */}
+    </>
+  );
+};
+export default Application;

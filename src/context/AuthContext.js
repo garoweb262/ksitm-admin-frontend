@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 // Create the context
 const AuthContext = createContext();
@@ -14,11 +14,18 @@ const initialState = {
 const authReducer = (state, action) => {
   switch (action.type) {
     case 'SET_AUTH': // Set both token and user
-      return { ...state, token: action.payload.token, user: action.payload.user };
+      return {
+        ...state,
+        token: action.payload.token,
+        user: action.payload.user,
+      };
     case 'CLEAR_AUTH': // Clear both token and user
       return { ...state, token: null, user: null };
     case 'ADD_APPLICATION': // Add new case for adding applications
-      return { ...state, applications: [...state.applications, action.payload] }; // Append new application
+      return {
+        ...state,
+        applications: [...state.applications, action.payload],
+      }; // Append new application
     default:
       return state;
   }
@@ -28,8 +35,40 @@ const authReducer = (state, action) => {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Load token and user from localStorage on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+
+    // If token and user exist in localStorage, set them in state
+    if (token && user) {
+      dispatch({
+        type: 'SET_AUTH',
+        payload: {
+          token,
+          user: JSON.parse(user),
+        },
+      });
+    }
+  }, []);
+
+  // Function to get user details
+  const getUserDetails = () => {
+    return state.user;
+  };
+
+  // Function to log out the user
+  const logout = () => {
+    // Clear the token and user from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    // Clear the token and user from the context state
+    dispatch({ type: 'CLEAR_AUTH' });
+  };
+
   return (
-    <AuthContext.Provider value={{ state, dispatch }}>
+    <AuthContext.Provider value={{ state, dispatch, getUserDetails, logout }}>
       {children}
     </AuthContext.Provider>
   );

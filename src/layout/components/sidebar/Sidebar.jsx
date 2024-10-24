@@ -33,6 +33,11 @@ const menuSections = [
     title: 'Settings',
     items: [
       {
+        name: 'Users',
+        path: '/app/users',
+        icon: <PersonIcon />,
+      },
+      {
         name: 'Account Setting',
         path: '/app/settings',
         icon: <ManageAccountsIcon />,

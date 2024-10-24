@@ -6,6 +6,7 @@ import Results from '../../views/exams-results/Results.jsx';
 import Exams from '../../views/exams/Exams.jsx';
 import Notification from '../../views/notification/Notification.jsx';
 import Payments from '../../views/payments/Payment.jsx';
+import Users from '../../views/users/Users.jsx';
 
 let prefix = '/app/';
 const adminRoutes = [
@@ -40,6 +41,10 @@ const adminRoutes = [
   {
     path: `${prefix}exam-results`,
     element: <Results />,
+  },
+  {
+    path: `${prefix}users`,
+    element: <Users />,
   },
 ];
 

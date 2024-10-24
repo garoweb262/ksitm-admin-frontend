@@ -1,19 +1,19 @@
-// Navbar.js
-import PropTypes from "prop-types";
-import MenuIcon from "@mui/icons-material/Menu";
+import PropTypes from 'prop-types';
+import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const Navbar = ({ toggleSidebar }) => {
+  const { logout } = useAuth(); // Get the logout function from context
   const userDataString = localStorage.getItem('user');
-  const userData = userDataString ? JSON.parse(userDataString) : null; 
+  const userData = userDataString ? JSON.parse(userDataString) : null;
 
   const navigate = useNavigate();
-  
-  const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate('/auth/login');
+
+  const handleLogout = () => {
+    logout(); // Call the logout method from context
+    navigate('/'); // Navigate after logout
   };
 
   return (
@@ -38,7 +38,7 @@ const Navbar = ({ toggleSidebar }) => {
             <h1 className="font-bold">Welcome, Guest!</h1>
           )}
         </div>
-        <button onClick={logout} className="text-red-500">
+        <button onClick={handleLogout} className="text-red-500">
           <LogoutIcon />
         </button>
       </div>

@@ -1,24 +1,23 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { login } from "../../../../api/userApi";
-import InputField from "../../../../components/control/InputField";
-import Button from "../../../../components/button/Button";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { login } from '../../../../api/userApi';
+import InputField from '../../../../components/control/InputField';
+import Button from '../../../../components/button/Button';
 // import RememberMe from "./RememberMe";
 import Loader from '../../../../components/loader/Loader';
-import { useAuth } from '../../../../context/AuthContext'; 
+import { useAuth } from '../../../../context/AuthContext';
 
 const Form = () => {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // Loader state
   const navigate = useNavigate();
-  const { dispatch } = useAuth(); 
+  const { dispatch } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setError(""); // Reset error state
+  const handleSubmit = async () => {
+    setError(''); // Reset error state
     setLoading(true); // Set loading state
 
     try {
@@ -28,7 +27,7 @@ const Form = () => {
       };
       const response = await login(user); // Await the API call
 
-      if (response.status === "success") {
+      if (response.status === 'success') {
         const { token, data: user } = response;
 
         // Store token and user in context
@@ -45,7 +44,7 @@ const Form = () => {
         }, 3000);
       } else {
         // Display error message from response
-        toast.error(response.message || "Login failed. Please try again.");
+        toast.error(response.message || 'Login failed. Please try again.');
       }
     } catch (error) {
       // Check for error response
@@ -55,12 +54,14 @@ const Form = () => {
           toast.error(error.response.data.message); // Handle 500 error
         } else {
           // Show the error message from the response
-          toast.error(error.response.data.message || "An unexpected error occurred.");
+          toast.error(
+            error.response.data.message || 'An unexpected error occurred.'
+          );
         }
       } else {
-        toast.error("An error occurred. Please try again."); // Generic error message
+        toast.error('An error occurred. Please try again.'); // Generic error message
       }
-      setError(error.response.data.message   || "An error occurred."); // Set error state
+      setError(error.response.data.message || 'An error occurred.'); // Set error state
     } finally {
       setLoading(false); // Reset loading state
     }
@@ -68,13 +69,14 @@ const Form = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="flex flex-col space-y-4 py-4 rounded">
+      <p className="text-2xl text-primary font-bold text-center">Login</p>
+      <div className="flex flex-col space-y-4 py-4 rounded">
         {error && <div className="text-red-500">{error}</div>}
         <InputField
           type="text"
-          label="User ID"
+          label="Email Address"
           name="userId"
-          placeholder="Enter your user ID"
+          placeholder="Enter your email address"
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
         />
@@ -86,9 +88,15 @@ const Form = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-     
-        <Button disabled={loading? true :false} onClick={handleSubmit} label={loading ? <Loader loading={loading} /> : "Login"} type="submit" className="" />
-      </form>
+
+        <Button
+          disabled={loading ? true : false}
+          onClick={handleSubmit}
+          label={loading ? <Loader loading={loading} /> : 'Login'}
+          type="submit"
+          className=""
+        />
+      </div>
     </div>
   );
 };

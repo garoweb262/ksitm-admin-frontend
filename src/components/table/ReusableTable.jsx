@@ -84,8 +84,11 @@ const ReusableTable = ({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table {...getTableProps()} className="min-w-full bg-gray-100">
+      <div className="overflow-x-auto overflow-y-auto pb-20 no-scrollbar">
+        <table
+          {...getTableProps()}
+          className="min-w-full bg-gray-100 overflow-x-auto "
+        >
           <thead key="table-header" className="bg-gray-200">
             {headerGroups.map((headerGroup) => (
               <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
@@ -127,7 +130,6 @@ const ReusableTable = ({
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-between items-center p-4">
         <div>
           <select
@@ -144,7 +146,6 @@ const ReusableTable = ({
         </div>
         <div className="flex flex-row space-x-2">
           <div className="flex items-center">
-            {/* Previous Page Button */}
             <button
               onClick={handlePreviousPage}
               disabled={!canPreviousPage}
@@ -153,12 +154,22 @@ const ReusableTable = ({
               <ChevronLeft />
             </button>
 
-            {/* Page Number */}
-            <div className="px-2">
-              Page {currentPageIndex + 1} of {totalPages}
+            <div className="flex space-x-1">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handlePageClick(index)}
+                  className={`w-8 h-8 flex items-center justify-center rounded ${
+                    currentPageIndex === index
+                      ? 'bg-primary/75 text-white'
+                      : 'bg-gray-300 text-black'
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
             </div>
 
-            {/* Next Page Button */}
             <button
               onClick={handleNextPage}
               disabled={!canNextPage}

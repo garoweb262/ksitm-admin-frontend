@@ -5,10 +5,10 @@ import {
   clearFormDataHeader,
 } from './headers';
 
-export const getAllApplications = async (token, page, limit) => {
+export const getAllApplicants = async (token, page, limit) => {
   setAuthorizationHeader(token);
   try {
-    const response = await axios.get(`/admin/applications`, {
+    const response = await axios.get(`/admin/applicants`, {
       params: { page, limit },
     });
     return response.data;
@@ -18,10 +18,12 @@ export const getAllApplications = async (token, page, limit) => {
   }
 };
 
-export const getUserApplication = async (token) => {
+export const getUserApplication = async (token, id) => {
   setAuthorizationHeader(token);
   try {
-    const response = await axios.get(`/applications/my`);
+    const response = await axios.get(`/applications/my`, {
+      params: { id },
+    });
 
     return response.data;
   } catch (error) {

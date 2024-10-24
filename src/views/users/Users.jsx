@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { getAllPayments } from '../../api/paymentApi';
+import { getAllUsers } from '../../api/userApi';
 import { useAuth } from '../../context/AuthContext';
 import ReusableTable from '../../components/table/ReusableTable';
 import TableOption from '../../components/table/TableOption';
@@ -13,7 +13,7 @@ import FormatDate from '../../components/table/FormatDate';
 import Loader from '../../components/loader/Loader';
 import EmptyTable from '../../components/table/EmptyTable';
 import Modal from '../../components/modal/Modal';
-const Payments = () => {
+const Users = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
   const { token } = state;
@@ -37,14 +37,14 @@ const Payments = () => {
 
   const usersQuery = useQuery({
     queryKey: [
-      'payments',
+      'users',
       pageIndex,
       pageSize,
       //   categoryValue,
       //   depreciationRate,
     ],
     queryFn: () =>
-      getAllPayments(
+      getAllUsers(
         token,
         pageIndex + 1,
         pageSize
@@ -56,7 +56,7 @@ const Payments = () => {
       setTotalPages(data.totalPages);
     },
     onError: (error) => {
-      console.error('Error fetching payments:', error);
+      console.error('Error fetching users:', error);
     },
   });
 
@@ -68,45 +68,23 @@ const Payments = () => {
     () => [
       { Header: 'Sn', accessor: (row, i) => i + 1 },
       {
-        Header: 'Payment Reference',
-        accessor: 'reference',
-        Cell: ({ value }) => <div className="w-60">{value}</div>,
-      },
-      {
-        Header: 'Amount Paid',
-        accessor: 'amount',
-        Cell: ({ value }) => <div className="w-20">{value}</div>,
-      },
-      {
-        Header: 'Charged Amount',
-        accessor: 'chargedAmount',
+        Header: 'FullName',
+        accessor: (row) => `${row.firstname} ${row.lastname}`,
         Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
       {
-        Header: 'Payment Method',
-        accessor: 'paymentType',
-        Cell: ({ value }) => <div className="w-32">{value}</div>,
+        Header: 'Phone Number',
+        accessor: 'phone',
+        Cell: ({ value }) => <div className="w-20">{value}</div>,
       },
       {
-        Header: 'Paid By',
-        accessor: 'userId',
-        Cell: ({ row }) => {
-          const { firstName, middleName, surName } = row.original.userId;
-          return (
-            <div className="w-48">
-              {`${firstName} ${middleName || ''} ${surName}`.trim()}
-            </div>
-          );
-        },
+        Header: 'Email Address',
+        accessor: 'email',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
       {
-        Header: 'Applicant Reg Number',
-        accessor: 'userId.userId',
-        Cell: ({ value }) => <div className="w-32">{value}</div>,
-      },
-      {
-        Header: 'Applicant email',
-        accessor: 'userId.email',
+        Header: 'Role',
+        accessor: 'role',
         Cell: ({ value }) => <div className="w-32">{value}</div>,
       },
       {
@@ -114,6 +92,7 @@ const Payments = () => {
         accessor: 'createdAt',
         Cell: ({ value }) => (
           <div className="w-40">
+            {' '}
             <FormatDate value={value} />
           </div>
         ),
@@ -125,18 +104,18 @@ const Payments = () => {
             <ul className="flex flex-col space-y-2">
               <li className="block p-2 text-sm text-primary text-left">
                 <button
-                // onClick={() =>
-                //   openModal(
-                //     <EditCategoryForm
-                //       categoryId={row.original._id}
-                //       rate={row.original.depreciationRate}
-                //       name={row.original.name}
-                //       onClose={closeModal}
-                //       refetch={categoryQuery.refetch}
-                //       setIsModalOpen={setIsModalOpen}
-                //     />
-                //   )
-                // }
+                //   onClick={() =>
+                //     openModal(
+                //       <EditCategoryForm
+                //         categoryId={row.original._id}
+                //         rate={row.original.depreciationRate}
+                //         name={row.original.name}
+                //         onClose={closeModal}
+                //         refetch={categoryQuery.refetch}
+                //         setIsModalOpen={setIsModalOpen}
+                //       />
+                //     )
+                //   }
                 >
                   Edit
                 </button>
@@ -152,7 +131,7 @@ const Payments = () => {
   return (
     <>
       <div className="flex justify-between m-8 space-x-4 items-start">
-        <p className="text-primary text-2xl font-bold">Payments</p>
+        <p className="text-primary text-2xl font-bold">Users</p>
         {/* <FilterSearch>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -179,12 +158,12 @@ const Payments = () => {
             </div>
           </div>
         </FilterSearch> */}
-        {/* <div className="flex flex-row space-x-2 h-[42px]">
+        <div className="flex flex-row space-x-2 h-[42px]">
           <Button
             label="Create User"
             onClick={() => navigate('/app/create-cuser')}
           />
-        </div> */}
+        </div>
       </div>
 
       {usersQuery.isLoading ? (
@@ -212,4 +191,4 @@ const Payments = () => {
   );
 };
 
-export default Payments;
+export default Users;
