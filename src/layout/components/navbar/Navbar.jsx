@@ -31,8 +31,8 @@ const Navbar = ({ toggleSidebar }) => {
         <div>
           {userData ? ( // Ensure userData is defined before accessing its properties
             <>
-              <h1 className="font-bold">{`${userData.surName} ${userData.firstName} ${userData.middleName}`}</h1>
-              <h6 className="text-sm">{userData.userId}</h6>
+              <h1 className="font-bold">{`${userData.firstname} ${userData.lastname}`}</h1>
+              <h6 className="text-sm">{userData.role}</h6>
             </>
           ) : (
             <h1 className="font-bold">Welcome, Guest!</h1>

@@ -4,10 +4,10 @@ import { setAuthorizationHeader, clearFormDataHeader } from './headers';
 export const createUser = async (applicantData) => {
   setAuthorizationHeader("");
   try {
-    const response = await axios.post('/users/signup', applicantData);
+    const response = await axios.post('/admin/staff', applicantData);
     return response.data;
   } catch (error) {
-    // console.error('Error creating applicant account:', error.response?.data || error.message);
+
     throw error; 
   } finally {
     clearFormDataHeader();
@@ -16,10 +16,10 @@ export const createUser = async (applicantData) => {
 export const login = async (data) => {
   setAuthorizationHeader("");
   try {
-    const response = await axios.post('/users/login', data);
+    const response = await axios.post('/admin/login', data);
     return response.data;
   } catch (error) {
-    // console.error('Error login applicant account:', error.response?.data || error.message);
+   
     throw error; 
   } finally {
     clearFormDataHeader();

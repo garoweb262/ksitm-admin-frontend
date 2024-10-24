@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { login } from "../../../api/userApi";
-import InputField from "../../../components/control/InputField";
-import Button from "../../../components/button/Button";
+import { login } from "../../../../api/userApi";
+import InputField from "../../../../components/control/InputField";
+import Button from "../../../../components/button/Button";
 // import RememberMe from "./RememberMe";
-import Loader from '../../../components/loader/Loader';
-import { useAuth } from '../../../context/AuthContext'; 
+import Loader from '../../../../components/loader/Loader';
+import { useAuth } from '../../../../context/AuthContext'; 
 
 const Form = () => {
   const [userId, setUserId] = useState("");
@@ -23,7 +23,7 @@ const Form = () => {
 
     try {
       const user = {
-        userId: userId,
+        email: userId,
         password: password,
       };
       const response = await login(user); // Await the API call

@@ -36,36 +36,7 @@ const Application = () => {
   }, []);
   return (
     <div className="w-full">
-        <div className="flex flex-col justify-center items-center space-y-6">
-            <div className="flex flex-col space-y-2">
-                <p className="text-2xl font-bold text-dark">Application Form</p>
-                <p className="">Fill out the Application form</p>
-            </div>
-            {!dummyData
-    ? (
-      <>
-            <ApplicationForm />
-            </>
-    ):(
-      <>
-       <div className="flex flex-col items-center justify-center h-full">
-        
-        <div className="text-center flex flex-col space-y-3">
-            <h2 className="text-xl font-bold">You have submmited your Application preview your application details</h2>
-            {/* <p className="mt-2 text-gray-600">{errorResponse.message}</p> */}
-            <Button
-                onClick={() =>navigate("/app/prints")}
-                className="w-full h-full"
-                label="Preview Application"
-           />
-              
-          
-        </div>
-    </div>
-      </>
-    )
-  }
-        </div>
+       
 
     </div>
   )
