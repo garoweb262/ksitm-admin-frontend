@@ -25,10 +25,10 @@ const adminRoutes = [
     path: `${prefix}payments`,
     element: <Payments />,
   },
-  {
-    path: `${prefix}settings`,
-    element: <Profile />,
-  },
+  // {
+  //   path: `${prefix}settings`,
+  //   element: <Profile />,
+  // },
   {
     path: `${prefix}notification`,
     element: <Notification />,
