@@ -1,5 +1,6 @@
 import Applicants from '../../views/applicants/Applicants.jsx';
 import Application from '../../views/application/Application.jsx';
+import ApplicationDetails from '../../views/applicationDetails/ApplicationDetails.jsx';
 // import ApplicationDetails from '../../views/application/ApplicationDetails.jsx';
 import Dashboard from '../../views/dashboard/Dashboard.jsx';
 import Results from '../../views/exams-results/Results.jsx';
@@ -45,6 +46,10 @@ const adminRoutes = [
   {
     path: `${prefix}users`,
     element: <Users />,
+  },
+  {
+    path: `${prefix}application-details/:id`,
+    element: <ApplicationDetails />,
   },
 ];
 

@@ -1,16 +1,13 @@
 import axios from './axios';
-import {
-  setAuthorizationHeader,
-  setFormDataHeader,
-  clearFormDataHeader,
-} from './headers';
+import { setAuthorizationHeader, clearFormDataHeader } from './headers';
 
-export const getAllApplications = async (token, page, limit) => {
+export const getAllApplications = async (token, page, limit, _id) => {
   setAuthorizationHeader(token);
   try {
     const response = await axios.get(`/admin/applications`, {
-      params: { page, limit },
+      params: { page, limit, _id },
     });
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     // console.error('Error fetching applications:', error.response?.data || error.message);
@@ -18,14 +15,25 @@ export const getAllApplications = async (token, page, limit) => {
   }
 };
 
-export const getUserApplication = async (token) => {
+export const verify = async (data, token) => {
   setAuthorizationHeader(token);
   try {
-    const response = await axios.get(`/applications/my`);
-
+    const response = await axios.post('/admin/application/verification', data);
     return response.data;
   } catch (error) {
-    // console.error(`Error fetching application details:`, error.response?.data || error.message);
     throw error;
+  } finally {
+    clearFormDataHeader();
+  }
+};
+export const update = async (data, token) => {
+  setAuthorizationHeader(token);
+  try {
+    const response = await axios.post('/admin/application/status', data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  } finally {
+    clearFormDataHeader();
   }
 };

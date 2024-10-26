@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAllApplications } from '../../api/applicationApi';
 import { useAuth } from '../../context/AuthContext';
 import ReusableTable from '../../components/table/ReusableTable';
@@ -56,7 +56,7 @@ const Application = () => {
       setTotalPages(data.totalPages);
     },
     onError: (error) => {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching details:', error);
     },
   });
 
@@ -154,11 +154,9 @@ const Application = () => {
           <TableOption>
             <ul className="flex flex-col space-y-2">
               <li className="block p-2 text-sm text-primary text-left">
-                <button
-                // onClick={() => openModal(<EditCategoryForm ... />)}
-                >
-                  Edit
-                </button>
+                <Link to={`/app/application-details/${row.original._id}`}>
+                  View
+                </Link>
               </li>
             </ul>
           </TableOption>

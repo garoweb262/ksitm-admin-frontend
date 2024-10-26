@@ -5,22 +5,19 @@ import Calendar from './components/Calendar';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import EnrollInfo from './components/EnrollInfo';
-import NotificationCard from './components/Notification';
+// import EnrollInfo from './components/EnrollInfo';
+// import NotificationCard from './components/Notification';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const userDataString = localStorage.getItem('user');
-  const userData = userDataString ? JSON.parse(userDataString) : null; 
+  const userData = userDataString ? JSON.parse(userDataString) : null;
   return (
     <>
-  <div className="w-full h-full">
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-col space-y-2 py-4">
-     
-     
-        
-        {/* <div className='flex flex-col space-y-5'>
+      <div className="w-full h-full">
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2 py-4">
+            {/* <div className='flex flex-col space-y-5'>
           <div className='flex flex-col space-y-2'>
             <div className='flex flex-row space-x-2'>
               <MenuBookOutlinedIcon className='text-dark' />
@@ -33,7 +30,7 @@ const Dashboard = () => {
           </div>
           </div>
         </div> */}
-        {/* <div className='flex flex-col space-y-5'>
+            {/* <div className='flex flex-col space-y-5'>
           <div className='flex flex-col space-y-2'>
            <div className='flex justify-between'>
            <div className='flex flex-row space-x-2'>
@@ -51,11 +48,10 @@ const Dashboard = () => {
           </div>
           </div>
         </div> */}
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
     </>
-    
   );
 };
 

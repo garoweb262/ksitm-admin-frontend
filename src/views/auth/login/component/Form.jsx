@@ -4,9 +4,8 @@ import { toast } from 'react-toastify';
 import { login } from '../../../../api/userApi';
 import InputField from '../../../../components/control/InputField';
 import Button from '../../../../components/button/Button';
-// import RememberMe from "./RememberMe";
-import Loader from '../../../../components/loader/Loader';
 import { useAuth } from '../../../../context/AuthContext';
+import ButtonLoader from '../../../../components/loader/ButtonLoader';
 
 const Form = () => {
   const [userId, setUserId] = useState('');
@@ -92,7 +91,7 @@ const Form = () => {
         <Button
           disabled={loading ? true : false}
           onClick={handleSubmit}
-          label={loading ? <Loader loading={loading} /> : 'Login'}
+          label={loading ? <ButtonLoader loading={loading} /> : 'Login'}
           type="submit"
           className=""
         />

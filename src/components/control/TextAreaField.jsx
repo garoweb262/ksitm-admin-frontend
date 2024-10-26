@@ -1,12 +1,12 @@
 import React from 'react';
 
 const TextAreaField = ({
-  label,
-  name,
-  value,
-  onChange,
-  placeholder,
-  error,
+  label = '',
+  name = '',
+  value = '',
+  onChange = () => {},
+  placeholder = '',
+  error = '',
   rows = 3,
   maxLength,
   ...rest
@@ -24,17 +24,17 @@ const TextAreaField = ({
       <textarea
         id={name}
         name={name}
-        value={value}
+        value={value || ''}
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
         maxLength={maxLength}
-        className={`p-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+        className={`p-2 border ${
+          error ? 'border-red-500' : 'border-gray-300'
+        } rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
         {...rest}
       />
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 };
