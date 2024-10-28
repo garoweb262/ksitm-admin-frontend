@@ -12,7 +12,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // Account 
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
-
+import HelpIcon from '@mui/icons-material/Help';
 // Grouping the menu items
 const menuSections = [
   {
@@ -27,6 +27,11 @@ const menuSections = [
       { name: 'Exams', path: '/app/exams', icon: <SchoolIcon /> },
       { name: 'Exams Results', path: '/app/exam-results', icon: <GradeIcon /> },
       { name: 'Payment', path: '/app/payments', icon: <MonetizationOnIcon /> },
+      {
+        name: 'Help & Support',
+        path: '/app/help',
+        icon: <HelpIcon />,
+      },
     ],
   },
   {
@@ -42,11 +47,11 @@ const menuSections = [
         path: '/app/settings',
         icon: <ManageAccountsIcon />,
       },
-      {
-        name: 'Notification',
-        path: '/app/notification',
-        icon: <NotificationsActiveIcon />,
-      },
+      // {
+      //   name: 'Notification',
+      //   path: '/app/notification',
+      //   icon: <NotificationsActiveIcon />,
+      // },
     ],
   },
 ];

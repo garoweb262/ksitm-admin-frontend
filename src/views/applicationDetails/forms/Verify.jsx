@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import InputField from '../../../components/control/InputField';
 import TextAreaField from '../../../components/control/TextAreaField';
 import Button from '../../../components/button/Button';
 import { useAuth } from '../../../context/AuthContext';

@@ -5,6 +5,7 @@ import ApplicationDetails from '../../views/applicationDetails/ApplicationDetail
 import Dashboard from '../../views/dashboard/Dashboard.jsx';
 import Results from '../../views/exams-results/Results.jsx';
 import Exams from '../../views/exams/Exams.jsx';
+import Help from '../../views/help/Help.jsx';
 import Notification from '../../views/notification/Notification.jsx';
 import Payments from '../../views/payments/Payment.jsx';
 import Users from '../../views/users/Users.jsx';
@@ -46,6 +47,10 @@ const adminRoutes = [
   {
     path: `${prefix}users`,
     element: <Users />,
+  },
+  {
+    path: `${prefix}help`,
+    element: <Help />,
   },
   {
     path: `${prefix}application-details/:id`,

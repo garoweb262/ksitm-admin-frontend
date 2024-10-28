@@ -5,11 +5,11 @@ import {
   clearFormDataHeader,
 } from './headers';
 
-export const getAllApplicants = async (token, page, limit) => {
+export const getAllApplicants = async (token, page, limit, userId) => {
   setAuthorizationHeader(token);
   try {
     const response = await axios.get(`/admin/applicants`, {
-      params: { page, limit },
+      params: { page, limit, userId },
     });
     return response.data;
   } catch (error) {
