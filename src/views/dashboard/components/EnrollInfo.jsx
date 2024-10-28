@@ -115,7 +115,7 @@ const EnrollInfo = () => {
   return (
     <div className="w-full flex justify-center items-center">
       <div className="max-w-[1000px] py-5">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {cardsData.map((card, index) => (
             <EnrollCard
               key={index}
