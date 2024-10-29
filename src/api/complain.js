@@ -1,10 +1,10 @@
 import axios from './axios';
 import { setAuthorizationHeader, clearFormDataHeader } from './headers';
 
-export const reply = async (data) => {
-  setAuthorizationHeader('');
+export const reply = async (data, id, token) => {
+  setAuthorizationHeader(token);
   try {
-    const response = await axios.post('/contact/reply', data);
+    const response = await axios.patch(`/admin/complain/reply/${id}`, data);
     return response.data;
   } catch (error) {
     throw error;

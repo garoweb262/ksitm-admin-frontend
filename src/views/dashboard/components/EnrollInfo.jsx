@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Card from '../../../components/card/Card';
-import Button from '../../../components/button/Button';
-import { useNavigate } from 'react-router-dom';
-import { getUserApplication } from '../../..//api/applicationApi';
-import { toast } from 'react-toastify';
 import PeopleIcon from '@mui/icons-material/People';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { getAllCounts } from '../../../api/countApi';
+import { useAuth } from '../../../context/AuthContext';
 
 const EnrollCard = ({
   icon: Icon,
@@ -22,7 +21,7 @@ const EnrollCard = ({
   return (
     <Card
       onClick={onClick}
-      className={`bg-${color} flex flex-col space-y-3 cursor-pointer p-4`}
+      className={`text-${color} flex flex-col space-y-3 cursor-pointer p-4`}
     >
       <div className="flex items-center space-x-2">
         <Icon className="text-primary" />
@@ -35,80 +34,69 @@ const EnrollCard = ({
 };
 
 const EnrollInfo = () => {
-  // Uncomment this section to handle navigation, fetching data, etc.
-  // const navigate = useNavigate();
-  // const [dummyData, setDummyData] = useState(null);
-  // const [isApply, setIsApply] = useState(false);
-  // const userDataString = localStorage.getItem('user');
-  // const userData = userDataString ? JSON.parse(userDataString) : null;
+  const [data, setData] = useState({});
+  const { state } = useAuth();
+  const { token } = state;
 
-  // const getApplicationDetails = async () => {
-  //   const token = localStorage.getItem('token');
-  //   try {
-  //     const response = await getUserApplication(token);
-  //     if (response.status === 'success') {
-  //       const data = response.data;
-  //       setIsApply(true);
-  //       setDummyData(data);
-  //     } else {
-  //       if (response.statusCode === 404) {
-  //         setIsApply(false);
-  //       } else {
-  //         toast.error('An unexpected error occurred. Please try again.');
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     toast.error('Error getting applicant details');
-  //   }
-  // };
+  const notificationQuery = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => getAllCounts(token),
+    onSuccess: (data) => {
+      setData(data.data);
+    },
+    onError: (error) => {
+      console.error('Error fetching notifications:', error);
+    },
+  });
 
-  // useEffect(() => {
-  //   getApplicationDetails();
-  // }, []);
+  useEffect(() => {
+    if (notificationQuery.data) {
+      setData(notificationQuery.data.data);
+    }
+  }, [notificationQuery.data]);
 
   const cardsData = [
     {
       icon: PeopleIcon,
       title: 'All Applicants',
-      value: '120',
+      value: data.totalUsers || 0,
       description: 'Total number of applicants',
       color: 'blue',
     },
     {
       icon: MonetizationOnIcon,
       title: 'Total Payment Amount',
-      value: '₦15,000',
+      value: `₦${data.totalAmountPaid || 0}`,
       description: 'Total payment collected',
       color: 'green',
     },
     {
       icon: PaymentsIcon,
       title: 'All Payments',
-      value: '45',
+      value: data.totalPayments || 0,
       description: 'All processed payments',
       color: 'purple',
     },
     {
       icon: DescriptionIcon,
       title: 'All Applications',
-      value: '150',
+      value: data.totalApplications || 0,
       description: 'Total applications received',
       color: 'orange',
     },
     {
       icon: CheckCircleIcon,
       title: 'Successful Applications',
-      value: '100',
+      value: data.approvedApplications || 0,
       description: 'Total approved applications',
       color: 'green',
     },
     {
       icon: CancelIcon,
       title: 'Rejected Applications',
-      value: '20',
+      value: data.rejectedApplications || 0,
       description: 'Total rejected applications',
-      color: 'red',
+      color: 'red-500',
     },
   ];
 

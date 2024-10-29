@@ -6,8 +6,9 @@ import TextAreaField from '../../../components/control/TextAreaField';
 import Button from '../../../components/button/Button';
 import { useAuth } from '../../../context/AuthContext';
 import { getAllApplicants } from '../../../api/applicantsApi';
+import { reply } from '../../../api/complain';
 
-const Reply = ({ userId, fullname, email, onClose }) => {
+const Reply = ({ id, userId, fullname, email, onClose }) => {
   const { state } = useAuth();
   const { token } = state;
 
@@ -21,7 +22,7 @@ const Reply = ({ userId, fullname, email, onClose }) => {
     phone: '',
     email: '',
   });
-  const [reply, setReply] = useState('');
+  const [replyText, setReplyText] = useState(''); // Renamed here
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({}); // Changed to object
 
@@ -29,22 +30,26 @@ const Reply = ({ userId, fullname, email, onClose }) => {
     queryKey: ['users', pageIndex, pageSize, userId],
     queryFn: () => getAllApplicants(token, pageIndex + 1, pageSize, userId),
     onSuccess: (data) => {
-      const userData = data?.data?.[0];
-      if (userData) {
-        setFormData({
-          id: userData._id,
-          firstName: userData.firstName || '',
-          middleName: userData.middleName || '',
-          surName: userData.surName || '',
-          phone: userData.phone || '',
-          email: userData.email || '',
-        });
-      }
+      console.log(data); // Log data to see the structure and ensure it has the expected format
     },
     onError: (error) => {
       console.error('Error fetching users:', error);
     },
   });
+
+  useEffect(() => {
+    if (usersQuery.data && usersQuery.data.data && usersQuery.data.data[0]) {
+      const userData = usersQuery.data.data[0];
+      setFormData({
+        id: userData._id,
+        firstName: userData.firstName || '',
+        middleName: userData.middleName || '',
+        surName: userData.surName || '',
+        phone: userData.phone || '',
+        email: userData.email || '',
+      });
+    }
+  }, [usersQuery.data]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,15 +66,14 @@ const Reply = ({ userId, fullname, email, onClose }) => {
   };
 
   const handleSubmit = async () => {
-    setErrors({}); // Reset error state
-    setLoading(true); // Set loading state
+    setErrors({});
+    setLoading(true);
 
     try {
       const requestData = {
-        id: formData.id,
-        reply: reply,
+        reply: replyText,
       };
-      const response = await reply(requestData, token); // Assuming reply function is used to send the data
+      const response = await reply(requestData, id, token);
       console.log(response);
       if (response && response.success) {
         toast.success(response.message);
@@ -97,7 +101,11 @@ const Reply = ({ userId, fullname, email, onClose }) => {
         <InputField
           label="Name"
           name="name"
-          value={`${formData.firstName} ${formData.middleName} ${formData.surName} ?? ${fullname}`}
+          value={
+            userId
+              ? `${formData.firstName} ${formData.middleName} ${formData.surName}`
+              : fullname
+          }
           onChange={handleInputChange}
           placeholder="Enter user's name"
           className="bg-gray-100"
@@ -122,8 +130,8 @@ const Reply = ({ userId, fullname, email, onClose }) => {
           label="Reply"
           name="reply"
           placeholder="Enter Reply"
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
+          value={replyText} // Updated here
+          onChange={(e) => setReplyText(e.target.value)} // Updated here
           rows={4}
           maxLength={3000}
           disabled={loading}

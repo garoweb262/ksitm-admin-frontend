@@ -2,6 +2,12 @@
   "name": "ksitm_admin_frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://157.173.200.21",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "serve-build": "serve -s build -l 3001"
+  },
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -40,13 +46,6 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "proxy": "http://localhost:8080",
   "browserslist": {
     "production": [
       ">0.2%",

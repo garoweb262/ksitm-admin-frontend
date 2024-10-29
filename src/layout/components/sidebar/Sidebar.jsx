@@ -42,11 +42,11 @@ const menuSections = [
         path: '/app/users',
         icon: <PersonIcon />,
       },
-      {
-        name: 'Account Setting',
-        path: '/app/settings',
-        icon: <ManageAccountsIcon />,
-      },
+      // {
+      //   name: 'Account Setting',
+      //   path: '/app/settings',
+      //   icon: <ManageAccountsIcon />,
+      // },
       // {
       //   name: 'Notification',
       //   path: '/app/notification',
