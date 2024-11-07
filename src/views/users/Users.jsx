@@ -158,12 +158,6 @@ const Users = () => {
             </div>
           </div>
         </FilterSearch> */}
-        <div className="flex flex-row space-x-2 h-[42px]">
-          <Button
-            label="Create User"
-            onClick={() => navigate('/app/create-cuser')}
-          />
-        </div>
       </div>
 
       {usersQuery.isLoading ? (

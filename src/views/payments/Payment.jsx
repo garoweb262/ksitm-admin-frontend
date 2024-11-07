@@ -68,7 +68,7 @@ const Payments = () => {
     () => [
       { Header: 'Sn', accessor: (row, i) => i + 1 },
       {
-        Header: 'Payment Reference',
+        Header: 'Payment RRR',
         accessor: 'reference',
         Cell: ({ value }) => <div className="w-60">{value}</div>,
       },
