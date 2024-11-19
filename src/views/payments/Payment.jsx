@@ -1,76 +1,78 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { getAllPayments } from '../../api/paymentApi';
+import { getAllPayments, exportToExcelApi } from '../../api/paymentApi';
 import { useAuth } from '../../context/AuthContext';
 import ReusableTable from '../../components/table/ReusableTable';
 import TableOption from '../../components/table/TableOption';
-import Button from '../../components/button/Button';
-import FilterSearch from '../../components/filter/FilterSearch';
-import DateInputField from '../../components/control/DateInputField';
-import SelectField from '../../components/control/SelectField';
 import FormatDate from '../../components/table/FormatDate';
 import Loader from '../../components/loader/Loader';
 import EmptyTable from '../../components/table/EmptyTable';
 import Modal from '../../components/modal/Modal';
+import Button from '../../components/button/Button';
+import FilterSearch from '../../components/filter/FilterSearch';
+import InputField from '../../components/control/InputField';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Verify from './components/Verify';
 const Payments = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
   const { token } = state;
+  const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
-  const [categoryValue, setCategoryValue] = useState('');
-  const [depreciationRate, setDepreciationRate] = useState('');
+  const [reference, setRrr] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [totalPages, setTotalPages] = useState(0);
-
-  const openModal = (content) => {
-    setModalContent(content);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const openModal = () => {
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setModalContent(null);
   };
-
-  const usersQuery = useQuery({
-    queryKey: [
-      'payments',
-      pageIndex,
-      pageSize,
-      //   categoryValue,
-      //   depreciationRate,
-    ],
-    queryFn: () =>
-      getAllPayments(
+  const fetchApplicants = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllPayments(
         token,
         pageIndex + 1,
-        pageSize
-        // categoryValue,
-        // depreciationRate
-      ),
-    onSuccess: (data) => {
-      console.log(data);
-      setTotalPages(data.totalPages);
-    },
-    onError: (error) => {
-      console.error('Error fetching payments:', error);
-    },
-  });
-
-  const handleFilterChange = () => {
-    usersQuery.refetch();
+        pageSize,
+        reference
+      );
+      setData(response.data || []);
+      setTotalPages(response.totalPages || 0);
+    } catch (err) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchApplicants();
+  }, [pageIndex, pageSize, reference]);
+
+  const handlePageChange = (newPageIndex) => {
+    setPageIndex(newPageIndex);
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setPageIndex(0);
+  };
   const columns = useMemo(
     () => [
       { Header: 'Sn', accessor: (row, i) => i + 1 },
       {
         Header: 'Payment RRR',
         accessor: 'reference',
-        Cell: ({ value }) => <div className="w-60">{value}</div>,
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
       {
         Header: 'Amount Paid',
@@ -98,7 +100,7 @@ const Payments = () => {
         Cell: ({ row }) => {
           const { firstName, middleName, surName } = row.original.userId;
           return (
-            <div className="w-48">
+            <div className="w-60">
               {`${firstName} ${middleName || ''} ${surName}`.trim()}
             </div>
           );
@@ -107,18 +109,18 @@ const Payments = () => {
       {
         Header: 'Applicant Reg Number',
         accessor: 'userId.userId',
-        Cell: ({ value }) => <div className="w-32">{value}</div>,
+        Cell: ({ value }) => <div className="w-60">{value}</div>,
       },
       {
         Header: 'Applicant email',
         accessor: 'userId.email',
-        Cell: ({ value }) => <div className="w-48">{value}</div>,
+        Cell: ({ value }) => <div className="w-72">{value}</div>,
       },
       {
         Header: 'Date Created',
         accessor: 'createdAt',
         Cell: ({ value }) => (
-          <div className="w-40">
+          <div className="w-60">
             <FormatDate value={value} />
           </div>
         ),
@@ -142,66 +144,128 @@ const Payments = () => {
     ],
     []
   );
+  const exportToExcel = async () => {
+    try {
+      setIsLoading(true);
 
+      let allData = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      do {
+        // Fetch data for the current page
+        const response = await exportToExcelApi(token, currentPage);
+
+        if (
+          response &&
+          response.status === 'success' &&
+          response.data.length > 0
+        ) {
+          allData = [...allData, ...response.data]; // Aggregate data
+          totalPages = response.totalPages || 1; // Get the total number of pages from the API response
+        } else {
+          totalPages = 0; // Break loop if no more pages
+        }
+
+        currentPage++;
+      } while (currentPage <= totalPages);
+
+      if (allData.length > 0) {
+        // Map all API data to Excel-friendly format
+        const mappedData = allData.map((item) => ({
+          Amount: item.amount || 0,
+          Charge: item.chargedAmount || 0,
+          CreatedAt: new Date(item.createdAt).toLocaleString(),
+          RRR: item.reference || 'Not Provided',
+          orderId: item.orderId || 'Not Assigned',
+          paymentType: item.paymentType || 'Not Provided',
+          status: item.status || 'Not Scheduled',
+          UserID: item.userId.userId || 'N/A',
+        }));
+
+        // Create a new workbook and worksheet
+        const worksheet = XLSX.utils.json_to_sheet(mappedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Applicants');
+
+        // Generate Excel file and trigger download
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: 'xlsx',
+          type: 'array',
+        });
+        const blob = new Blob([excelBuffer], {
+          type: 'application/octet-stream',
+        });
+        saveAs(blob, 'applicants_export.xlsx');
+
+        toast.success('Export successful!');
+      } else {
+        toast.error('No data available to export.');
+      }
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast.error('Failed to export data.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const nav = [
+    {
+      label: 'Export All',
+      icon: <FileDownloadIcon fontSize="small" className="text-primary" />,
+      onClick: exportToExcel,
+    },
+  ];
   return (
     <>
       <div className="flex justify-between m-8 space-x-4 items-start">
         <p className="text-primary text-2xl font-bold">Payments</p>
-        {/* <FilterSearch>
+        <FilterSearch>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <SelectField
-                label="Category Name"
-                name="name"
-                value={categoryValue}
+              <InputField
+                label="RRR"
+                name="reference"
+                placeholder="Enter RRR"
+                value={reference}
                 onChange={(e) => {
-                  setCategoryValue(e.target.value);
-                  handleFilterChange();
-                }}
-              />
-            </div>
-            <div>
-              <SelectField
-                label="Depreciation Rate"
-                name="depreciationRate"
-                value={depreciationRate}
-                onChange={(e) => {
-                  setDepreciationRate(e.target.value);
-                  handleFilterChange();
+                  setRrr(e.target.value);
                 }}
               />
             </div>
           </div>
-        </FilterSearch> */}
-        {/* <div className="flex flex-row space-x-2 h-[42px]">
-          <Button
-            label="Create User"
-            onClick={() => navigate('/app/create-cuser')}
-          />
-        </div> */}
+        </FilterSearch>
       </div>
-
-      {usersQuery.isLoading ? (
-        <Loader loading={usersQuery.isLoading} />
-      ) : usersQuery.data?.data?.length === 0 ? (
+      <div>
+        <Button
+          onClick={openModal}
+          label="Verify Payment"
+          type="submit"
+          className={`w-1/4`}
+        />
+      </div>
+      {isLoading ? (
+        <Loader loading={isLoading} />
+      ) : error ? (
+        <div className="text-red-500 text-center">Error: {error}</div>
+      ) : data.length === 0 ? (
         <EmptyTable columns={columns} message="No users records found." />
       ) : (
         <ReusableTable
           columns={columns}
-          data={usersQuery.data?.data || []}
+          data={data}
+          nav={nav}
           pageIndex={pageIndex}
           pageSize={pageSize}
           totalPages={totalPages}
-          onPageChange={(newPage) => setPageIndex(newPage)}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setPageIndex(0);
-          }}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
-      {/* <Modal isOpen={isModalOpen} onClose={closeModal} title="Action Modal">
-        {modalContent}
-      </Modal> */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} title="Verify Payment">
+        <Verify onClose={closeModal} />
+      </Modal>
     </>
   );
 };

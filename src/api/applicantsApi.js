@@ -17,7 +17,18 @@ export const getAllApplicants = async (token, page, limit, userId) => {
     throw error;
   }
 };
-
+export const exportToExcelApi = async (token, page, limit) => {
+  setAuthorizationHeader(token);
+  try {
+    const response = await axios.get(`/admin/applicants`, {
+      params: { page, limit },
+    });
+    return response.data;
+  } catch (error) {
+    // console.error('Error fetching applications:', error.response?.data || error.message);
+    throw error;
+  }
+};
 export const getUserApplication = async (token, id) => {
   setAuthorizationHeader(token);
   try {

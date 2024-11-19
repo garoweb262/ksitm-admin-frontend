@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import ReusableTable from '../../components/table/ReusableTable';
 import TableOption from '../../components/table/TableOption';
@@ -13,69 +12,87 @@ import { getAllComplains } from '../../api/complain';
 import { useAuth } from '../../context/AuthContext';
 import { getAllApplicants } from '../../api/applicantsApi';
 import Reply from './forms/Reply';
-
+import InputField from '../../components/control/InputField';
 const Help = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
   const { token } = state;
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
   const [isOpen, setIsOpen] = useState(false);
   const [id, setId] = useState(null);
   const [userId, setUserId] = useState(null);
   const [fullname, setFullname] = useState(null);
   const [email, setEmail] = useState(null);
+  const [complains, setComplains] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const openModal = (id, userId, fullname, email) => {
     setIsOpen(true);
-    setId(id), setUserId(userId);
+    setId(id);
+    setUserId(userId);
     setFullname(fullname);
     setEmail(email);
   };
 
   const closeModal = () => {
     setIsOpen(false);
-    setId(null), setUserId(null);
+    setId(null);
+    setUserId(null);
     setFullname(null);
     setEmail(null);
   };
 
-  const helpsQuery = useQuery({
-    queryKey: ['helps', pageIndex, pageSize],
-    queryFn: () => getAllComplains(pageIndex + 1, pageSize),
-    onSuccess: (data) => {
-      console.log(data);
-      setTotalPages(data.totalPages);
-    },
-    onError: (error) => {
-      console.error('Error fetching complaints:', error);
-    },
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
 
-  const usersQuery = useQuery({
-    queryKey: ['users', pageIndex, pageSize],
-    queryFn: () => getAllApplicants(token, pageIndex + 1, pageSize),
-    onSuccess: (data) => {
-      console.log(data); // Log data to see the structure and ensure it has the expected format
-    },
-    onError: (error) => {
-      console.error('Error fetching users:', error);
-    },
-  });
+        // Fetch complaints
+        const complaintsResponse = await getAllComplains(
+          pageIndex + 1,
+          pageSize
+        );
+        setComplains(complaintsResponse.data);
+        setTotalPages(complaintsResponse.totalPages);
 
-  // Create a mapping of userId to user data
+        // Fetch users
+        const usersResponse = await getAllApplicants(
+          token,
+          pageIndex + 1,
+          pageSize
+        );
+        setUsers(usersResponse.data);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pageIndex, pageSize, token]);
+
   const userMap = useMemo(() => {
-    if (!usersQuery.data || !usersQuery.data.data) return {};
-    return usersQuery.data.data.reduce((acc, user) => {
-      acc[user.userId] = user; // Assuming userId is unique in your user data
+    return users.reduce((acc, user) => {
+      acc[user.userId] = user;
       return acc;
     }, {});
-  }, [usersQuery.data]);
+  }, [users]);
+  const handlePageChange = (newPageIndex) => {
+    setPageIndex(newPageIndex);
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setPageIndex(0);
+  };
 
   const combinedData = useMemo(() => {
-    if (!helpsQuery.data) return [];
-    return helpsQuery.data.data.map((complaint) => {
+    return complains.map((complaint) => {
       const user = userMap[complaint.userId] || {};
       return {
         ...complaint,
@@ -84,11 +101,10 @@ const Help = () => {
           (user.middleName ? ' ' + user.middleName : '') +
           ' ' +
           (user.surName ? user.surName : 'not registered'),
-
         email: user.email || 'not registered',
       };
     });
-  }, [helpsQuery.data, userMap]);
+  }, [complains, userMap]);
 
   const columns = useMemo(
     () => [
@@ -104,11 +120,11 @@ const Help = () => {
       },
       {
         Header: 'Full Name',
-        accessor: 'fullname', // Use the fullname from combined data
+        accessor: 'fullname',
       },
       {
         Header: 'Email Address',
-        accessor: 'email', // Use the email from combined data
+        accessor: 'email',
       },
       {
         Header: 'Complain',
@@ -175,8 +191,8 @@ const Help = () => {
         <p className="text-primary text-2xl font-bold">Complains</p>
       </div>
 
-      {helpsQuery.isLoading ? (
-        <Loader loading={helpsQuery.isLoading} />
+      {isLoading ? (
+        <Loader loading={isLoading} />
       ) : combinedData.length === 0 ? (
         <EmptyTable columns={columns} message="No complain records found." />
       ) : (
@@ -186,11 +202,8 @@ const Help = () => {
           pageIndex={pageIndex}
           pageSize={pageSize}
           totalPages={totalPages}
-          onPageChange={(newPage) => setPageIndex(newPage)}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setPageIndex(0);
-          }}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
       {isOpen && (

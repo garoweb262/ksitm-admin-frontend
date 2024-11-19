@@ -12,11 +12,11 @@ export const reply = async (data, id, token) => {
     clearFormDataHeader();
   }
 };
-export const getAllComplains = async (page, limit) => {
+export const getAllComplains = async (page, limit, userId) => {
   setAuthorizationHeader('');
   try {
     const response = await axios.get('/contact', {
-      params: { page, limit },
+      params: { page, limit, userId },
     });
 
     if (response.data.success) {
