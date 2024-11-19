@@ -12,28 +12,18 @@ import SelectField from '../../components/control/SelectField';
 import FormatDate from '../../components/table/FormatDate';
 import Loader from '../../components/loader/Loader';
 import EmptyTable from '../../components/table/EmptyTable';
-import Modal from '../../components/modal/Modal';
+
 const Users = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
   const { token } = state;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
+
   const [categoryValue, setCategoryValue] = useState('');
   const [depreciationRate, setDepreciationRate] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-
-  const openModal = (content) => {
-    setModalContent(content);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalContent(null);
-  };
 
   const usersQuery = useQuery({
     queryKey: [
@@ -77,6 +67,7 @@ const Users = () => {
         accessor: 'phone',
         Cell: ({ value }) => <div className="w-20">{value}</div>,
       },
+
       {
         Header: 'Email Address',
         accessor: 'email',
@@ -97,33 +88,20 @@ const Users = () => {
           </div>
         ),
       },
-      {
-        Header: 'Action',
-        Cell: ({ row }) => (
-          <TableOption>
-            <ul className="flex flex-col space-y-2">
-              <li className="block p-2 text-sm text-primary text-left">
-                <button
-                //   onClick={() =>
-                //     openModal(
-                //       <EditCategoryForm
-                //         categoryId={row.original._id}
-                //         rate={row.original.depreciationRate}
-                //         name={row.original.name}
-                //         onClose={closeModal}
-                //         refetch={categoryQuery.refetch}
-                //         setIsModalOpen={setIsModalOpen}
-                //       />
-                //     )
-                //   }
-                >
-                  Edit
-                </button>
-              </li>
-            </ul>
-          </TableOption>
-        ),
-      },
+      // {
+      //   Header: 'Action',
+      //   Cell: ({ row }) => (
+      //     <TableOption>
+      //       <ul className="flex flex-col space-y-2">
+      //         <li className="block p-2 text-sm text-primary text-left">
+      //           <button onClick={() => openModal(row.original.userId)}>
+      //             Edit
+      //           </button>
+      //         </li>
+      //       </ul>
+      //     </TableOption>
+      //   ),
+      // },
     ],
     []
   );
@@ -178,8 +156,8 @@ const Users = () => {
           }}
         />
       )}
-      {/* <Modal isOpen={isModalOpen} onClose={closeModal} title="Action Modal">
-        {modalContent}
+      {/* <Modal isOpen={isModalOpen} onClose={closeModal} title="Update Password">
+        <UpdateUserPassword userId={userId} onClose={closeModal} />
       </Modal> */}
     </>
   );

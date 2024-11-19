@@ -53,3 +53,15 @@ export const getAllUsers = async (token, page, limit) => {
     throw error;
   }
 };
+export const updatePassword = async (token, data) => {
+  setAuthorizationHeader(token);
+  try {
+    const response = await axios.patch('/admin/password', data);
+    return response.data;
+  } catch (error) {
+    // console.error('Error login applicant account:', error.response?.data || error.message);
+    throw error;
+  } finally {
+    clearFormDataHeader();
+  }
+};

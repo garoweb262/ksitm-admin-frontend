@@ -12,6 +12,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // Account 
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
+import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
 // Grouping the menu items
 const menuSections = [
@@ -42,11 +43,11 @@ const menuSections = [
         path: '/app/users',
         icon: <PersonIcon />,
       },
-      // {
-      //   name: 'Account Setting',
-      //   path: '/app/settings',
-      //   icon: <ManageAccountsIcon />,
-      // },
+      {
+        name: 'Account Setting',
+        path: '/app/settings',
+        icon: <SettingsIcon />,
+      },
       // {
       //   name: 'Notification',
       //   path: '/app/notification',

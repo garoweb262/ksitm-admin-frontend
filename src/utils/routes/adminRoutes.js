@@ -1,6 +1,8 @@
 import Applicants from '../../views/applicants/Applicants.jsx';
+import UpdateUserPassword from '../../views/applicants/components/UpdateUserPassword.jsx';
 import Application from '../../views/application/Application.jsx';
 import ApplicationDetails from '../../views/applicationDetails/ApplicationDetails.jsx';
+import UpdatePassword from '../../views/auth/update-password/UpdatePassword.jsx';
 // import ApplicationDetails from '../../views/application/ApplicationDetails.jsx';
 import Dashboard from '../../views/dashboard/Dashboard.jsx';
 import Results from '../../views/exams-results/Results.jsx';
@@ -28,10 +30,10 @@ const adminRoutes = [
     path: `${prefix}payments`,
     element: <Payments />,
   },
-  // {
-  //   path: `${prefix}settings`,
-  //   element: <Profile />,
-  // },
+  {
+    path: `${prefix}settings`,
+    element: <UpdatePassword />,
+  },
   {
     path: `${prefix}notification`,
     element: <Notification />,

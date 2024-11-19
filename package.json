@@ -2,9 +2,9 @@
   "name": "ksitm_admin_frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://157.173.200.21",
+  "homepage": "https://admin.recruitment.ksitm.edu.ng/",
   "scripts": {
-    "start": "cross-env PORT=3001 react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "serve-build": "serve -s build -l 3001"
   },

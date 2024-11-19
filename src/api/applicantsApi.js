@@ -31,3 +31,15 @@ export const getUserApplication = async (token, id) => {
     throw error;
   }
 };
+
+export const updateApplicantPassword = async (token, data) => {
+  setAuthorizationHeader(token);
+  try {
+    const response = await axios.patch('/admin/applicant/password', data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  } finally {
+    clearFormDataHeader();
+  }
+};

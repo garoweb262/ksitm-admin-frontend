@@ -83,6 +83,11 @@ const Payments = () => {
         Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
       {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
         Header: 'Payment Method',
         accessor: 'paymentType',
         Cell: ({ value }) => <div className="w-32">{value}</div>,
@@ -107,7 +112,7 @@ const Payments = () => {
       {
         Header: 'Applicant email',
         accessor: 'userId.email',
-        Cell: ({ value }) => <div className="w-32">{value}</div>,
+        Cell: ({ value }) => <div className="w-48">{value}</div>,
       },
       {
         Header: 'Date Created',
@@ -118,33 +123,22 @@ const Payments = () => {
           </div>
         ),
       },
-      {
-        Header: 'Action',
-        Cell: ({ row }) => (
-          <TableOption>
-            <ul className="flex flex-col space-y-2">
-              <li className="block p-2 text-sm text-primary text-left">
-                <button
-                // onClick={() =>
-                //   openModal(
-                //     <EditCategoryForm
-                //       categoryId={row.original._id}
-                //       rate={row.original.depreciationRate}
-                //       name={row.original.name}
-                //       onClose={closeModal}
-                //       refetch={categoryQuery.refetch}
-                //       setIsModalOpen={setIsModalOpen}
-                //     />
-                //   )
-                // }
-                >
-                  Edit
-                </button>
-              </li>
-            </ul>
-          </TableOption>
-        ),
-      },
+      // {
+      //   Header: 'Action',
+      //   Cell: ({ row }) => (
+      //     <TableOption>
+      //       <ul className="flex flex-col space-y-2">
+      //         <li className="block p-2 text-sm text-primary text-left">
+      //           <button
+
+      //           >
+      //             Edit
+      //           </button>
+      //         </li>
+      //       </ul>
+      //     </TableOption>
+      //   ),
+      // },
     ],
     []
   );
