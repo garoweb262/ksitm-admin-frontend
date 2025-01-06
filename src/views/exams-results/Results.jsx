@@ -76,8 +76,17 @@ const Results = () => {
       accessor: 'timeTaken',
     },
     {
-      Header: 'Faculty',
-      accessor: 'faculty',
+      Header: 'User ID',
+      accessor: 'user.userId',
+    },
+    {
+      Header: 'User Details',
+      accessor: 'user',
+      Cell: ({ value }) => (
+        <div>
+          {value.userId} - {value.firstName} {value.middleName} {value.surName}
+        </div>
+      ),
     },
     {
       Header: 'Role',
