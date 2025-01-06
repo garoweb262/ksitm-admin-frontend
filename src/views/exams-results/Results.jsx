@@ -15,8 +15,7 @@ import { toast } from 'react-toastify';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const Results = () => {
-  const { state } = useAuth();
-  const { token } = state;
+  const token = localStorage.getItem('token');
 
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

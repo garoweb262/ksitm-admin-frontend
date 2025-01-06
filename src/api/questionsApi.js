@@ -33,8 +33,6 @@ export const createBulkQuestion = async (data, token) => {
     return response.data;
   } catch (error) {
     throw error;
-  } finally {
-    clearFormDataHeader();
   }
 };
 export const updateQuestion = async (data, token, id) => {

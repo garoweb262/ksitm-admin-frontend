@@ -1,32 +1,73 @@
 import axios from './axios';
 import { setAuthorizationHeader, clearFormDataHeader } from './headers';
 
-export const getAllApplications = async (token, page, limit, applicationId) => {
+export const getAllApplications = async (token, page, limit, filters = {}) => {
   setAuthorizationHeader(token);
   try {
+    const queryParams = {
+      page,
+      limit,
+      ...(filters.applicationId && { applicationId: filters.applicationId }),
+      ...(filters.status && { status: filters.status }),
+      ...(filters.stage && { stage: filters.stage }),
+      ...(filters.userId && { userId: filters.userId }),
+      ...(filters.role && {
+        userFilterField: 'role',
+        userFilterValue: filters.role,
+      }),
+      ...(filters.faculty && {
+        userFilterField: 'faculty',
+        userFilterValue: filters.faculty,
+      }),
+      ...(filters.department && {
+        userFilterField: 'department',
+        userFilterValue: filters.department,
+      }),
+    };
+
     const response = await axios.get(`/admin/applications`, {
-      params: { page, limit, applicationId },
+      params: queryParams,
     });
-    // console.log(response.data);
     return response.data;
   } catch (error) {
-    // console.error('Error fetching applications:', error.response?.data || error.message);
     throw error;
   }
 };
-export const exportToExcelApi = async (token, page, limit) => {
+
+export const exportToExcelApi = async (token, page, limit, filters = {}) => {
   setAuthorizationHeader(token);
   try {
+    const queryParams = {
+      page,
+      limit,
+      export: true,
+      ...(filters.applicationId && { applicationId: filters.applicationId }),
+      ...(filters.status && { status: filters.status }),
+      ...(filters.stage && { stage: filters.stage }),
+      ...(filters.userId && { userId: filters.userId }),
+      ...(filters.role && {
+        userFilterField: 'role',
+        userFilterValue: filters.role,
+      }),
+      ...(filters.faculty && {
+        userFilterField: 'faculty',
+        userFilterValue: filters.faculty,
+      }),
+      ...(filters.department && {
+        userFilterField: 'department',
+        userFilterValue: filters.department,
+      }),
+    };
+
     const response = await axios.get(`/admin/applications`, {
-      params: { page, limit },
+      params: queryParams,
     });
-    // console.log(response.data);
     return response.data;
   } catch (error) {
-    // console.error('Error fetching applications:', error.response?.data || error.message);
     throw error;
   }
 };
+
 export const verify = async (data, token) => {
   setAuthorizationHeader(token);
   try {
@@ -38,6 +79,7 @@ export const verify = async (data, token) => {
     clearFormDataHeader();
   }
 };
+
 export const update = async (data, token) => {
   setAuthorizationHeader(token);
   try {

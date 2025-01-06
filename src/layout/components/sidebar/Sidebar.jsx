@@ -7,10 +7,6 @@ import DescriptionIcon from '@mui/icons-material/Description'; // Application
 import SchoolIcon from '@mui/icons-material/School'; // Exams
 import GradeIcon from '@mui/icons-material/Grade'; // Exam Results
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'; // Payment
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'; // Notification
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'; // Account Setting
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';

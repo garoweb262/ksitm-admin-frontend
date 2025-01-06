@@ -32,6 +32,60 @@ const Application = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [filters, setFilters] = useState({
+    applicationId: '',
+    status: '',
+    stage: '',
+    faculty: '',
+    department: '',
+    role: '',
+    userId: '',
+  });
+
+  const stages = [
+    { value: 'document', label: 'Document' },
+    { value: 'cbt', label: 'CBT' },
+    { value: 'interview', label: 'Interview' },
+  ];
+
+  const statuses = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' },
+  ];
+
+  const roleOptions = [
+    { value: 'Rector', label: 'Rector' },
+    { value: 'Bursar', label: 'Bursar' },
+    { value: 'Senior Lecturer', label: 'Senior Lecturer' },
+    { value: 'Lecturer I', label: 'Lecturer I' },
+    { value: 'Lecturer II', label: 'Lecturer II' },
+    { value: 'Lecturer III', label: 'Lecturer III' },
+    { value: 'Senior Instructor', label: 'Senior Instructor' },
+    { value: 'Technologist I', label: 'Technologist I' },
+    { value: 'Lecturer IM', label: 'Lecturer IM' },
+    { value: 'Lecturer IIE', label: 'Lecturer IIE' },
+    { value: 'Lecturer IE', label: 'Lecturer IE' },
+    { value: 'Lecturer IIM', label: 'Lecturer IIM' },
+    { value: 'Lecturer IIL', label: 'Lecturer IIL' },
+  ];
+
+  const departments = [
+    {
+      value: 'Library and Information Science',
+      label: 'Library and information science',
+    },
+    { value: 'Computer Engineering', label: 'Computer engineering' },
+    { value: 'Computer Science', label: 'Computer science' },
+    { value: 'Electrical Engineering', label: 'Electrical engineering' },
+    { value: 'Accountancy', label: 'Accountancy' },
+  ];
+
+  const faculties = [
+    { value: 'Technology', label: 'Technology' },
+    { value: 'Management', label: 'Management' },
+    { value: 'General Studies', label: 'General Studies' },
+  ];
 
   const openModal = (content) => {
     setModalContent(content);
@@ -51,13 +105,11 @@ const Application = () => {
         token,
         pageIndex + 1,
         pageSize,
-        userId,
-        applicationId
+        filters
       );
       setData(response.data || []);
       setTotalPages(response.totalPages || 0);
     } catch (err) {
-      console.error('Error fetching details:', err);
       setError(err);
     } finally {
       setIsLoading(false);
@@ -66,12 +118,16 @@ const Application = () => {
 
   useEffect(() => {
     fetchApplications();
-  }, [pageIndex, pageSize, userId, applicationId]);
+  }, [pageIndex, pageSize, filters]);
 
-  // const handleFilterChange = () => {
-  //   setPageIndex(0);
-  //   fetchApplications();
-  // };
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setPageIndex(0);
+  };
 
   const columns = useMemo(
     () => [
@@ -98,6 +154,21 @@ const Application = () => {
       {
         Header: 'User ID',
         accessor: 'userId.userId',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
+        Header: 'Faculty',
+        accessor: 'userId.faculty',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
+        Header: 'Department',
+        accessor: 'userId.department',
+        Cell: ({ value }) => <div className="w-40">{value}</div>,
+      },
+      {
+        Header: 'Role',
+        accessor: 'userId.role',
         Cell: ({ value }) => <div className="w-40">{value}</div>,
       },
       {
@@ -174,32 +245,11 @@ const Application = () => {
   const exportToExcel = async () => {
     try {
       setIsLoading(true);
+      const response = await exportToExcelApi(token, 1, 1000, filters);
 
-      let allAssets = [];
-      let currentPage = 1;
-      let totalPages = 1;
-
-      do {
-        // Fetch data for the current page
-        const response = await exportToExcelApi(token, currentPage, undefined);
-
-        if (
-          response &&
-          response.status === 'success' &&
-          response.data.length > 0
-        ) {
-          allAssets = [...allAssets, ...response.data];
-          totalPages = response.totalPages || 1; // Assuming `totalPages` is part of the API response
-        } else {
-          totalPages = 0; // Break loop if no more pages
-        }
-
-        currentPage++;
-      } while (currentPage <= totalPages);
-
-      if (allAssets.length > 0) {
+      if (response.data && response.data.length > 0) {
         // Map all API data to Excel-friendly format
-        const mappedData = allAssets.map((item) => ({
+        const mappedData = response.data.map((item) => ({
           UserID: item.userId.userId || 'N/A',
           Certificate:
             item.academicQualification
@@ -251,14 +301,18 @@ const Application = () => {
         const blob = new Blob([excelBuffer], {
           type: 'application/octet-stream',
         });
-        saveAs(blob, 'applicants_export.xlsx');
+        const fileName = filters.department
+          ? `applications_${filters.department
+              .toLowerCase()
+              .replace(/\s+/g, '_')}.xlsx`
+          : 'applications_all.xlsx';
 
+        saveAs(blob, fileName);
         toast.success('Export successful!');
       } else {
         toast.error('No data available to export.');
       }
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
       toast.error('Failed to export data.');
     } finally {
       setIsLoading(false);
@@ -274,32 +328,73 @@ const Application = () => {
   ];
   return (
     <>
-      <p className="text-primary text-2xl font-bold">Applications</p>
       <div className="flex justify-between m-8 space-x-4 items-start">
+        <p className="text-primary text-2xl font-bold">Applications</p>
         <FilterSearch>
-          <div className="grid grid-cols-2 gap-4">
-            {/* <div>
-              <InputField
-                label="User ID"
-                name="userId"
-                placeholder="Enter User ID"
-                value={userId}
-                onChange={(e) => {
-                  setUserId(e.target.value);
-                }}
-              />
-            </div> */}
-            <div>
-              <InputField
-                label="Application ID"
-                name="applicationId"
-                placeholder="Enter Application ID"
-                value={applicationId}
-                onChange={(e) => {
-                  setApplicationId(e.target.value);
-                }}
-              />
-            </div>
+          <div className="grid grid-cols-3 gap-4">
+            <InputField
+              label="User ID"
+              name="userId"
+              value={filters.userId}
+              onChange={handleFilterChange}
+              placeholder="Enter User ID"
+            />
+            <InputField
+              label="Application ID"
+              name="applicationId"
+              value={filters.applicationId}
+              onChange={handleFilterChange}
+              placeholder="Enter Application ID"
+            />
+            <SelectField
+              label="Faculty"
+              name="faculty"
+              value={filters.faculty}
+              options={[{ value: '', label: 'All Faculties' }, ...faculties]}
+              onChange={handleFilterChange}
+            />
+            <SelectField
+              label="Department"
+              name="department"
+              value={filters.department}
+              options={[
+                { value: '', label: 'All Departments' },
+                ...departments,
+              ]}
+              onChange={handleFilterChange}
+            />
+            <SelectField
+              label="Role"
+              name="role"
+              value={filters.role}
+              options={[{ value: '', label: 'All Roles' }, ...roleOptions]}
+              onChange={handleFilterChange}
+            />
+            <Button
+              type="button"
+              label="Clear Filters"
+              onClick={() => {
+                setFilters({
+                  applicationId: '',
+                  status: '',
+                  stage: '',
+                  faculty: '',
+                  department: '',
+                  role: '',
+                  userId: '',
+                });
+                setPageIndex(0);
+              }}
+              className="mt-6"
+            />
+
+            <Button
+              type="button"
+              label="Export Filtered"
+              onClick={exportToExcel}
+              icon={<FileDownloadIcon fontSize="small" />}
+              className="mt-6"
+            />
           </div>
         </FilterSearch>
       </div>
