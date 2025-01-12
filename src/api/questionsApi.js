@@ -1,7 +1,7 @@
 import axios from './axios';
 import { setAuthorizationHeader, clearFormDataHeader } from './headers';
 
-export const getAllQuestions = async (token, page, limit) => {
+export const getAllQuestions = async (token, page, limit = 1000) => {
   setAuthorizationHeader(token);
   try {
     const response = await axios.get(`/questions`, {

@@ -1,31 +1,30 @@
-import React, { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import BackupOutlinedIcon from '@mui/icons-material/BackupOutlined';
-import PropTypes from "prop-types";
 
-const FileUpload = ({ onFileSelect, acceptedFormats = "application/pdf,image/jpeg,image/png", section, index }) => {
+const FileUpload = ({ onChange, accept = '.xlsx,.xls' }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // Function to handle file drop or selection
-  const onDrop = useCallback((acceptedFiles) => {
-    setSelectedFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
-    
-    // Call onFileSelect with the event and other parameters
-    if (onFileSelect) {
-      // Create a fake event object to match handleFileSelect's expected parameters
-      const fakeEvent = {
-        target: {
-          files: acceptedFiles,
-        },
-      };
-      onFileSelect(fakeEvent, section, index);
-    }
-  }, [onFileSelect, section, index]);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      setSelectedFiles(acceptedFiles);
+      if (onChange && acceptedFiles.length > 0) {
+        // Create a synthetic event to match standard input onChange
+        const syntheticEvent = {
+          target: {
+            files: acceptedFiles,
+          },
+        };
+        onChange(syntheticEvent);
+      }
+    },
+    [onChange]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: acceptedFormats,
-    multiple: true, // Allow multiple file uploads
+    accept: accept,
+    multiple: false,
   });
 
   return (
@@ -38,14 +37,16 @@ const FileUpload = ({ onFileSelect, acceptedFormats = "application/pdf,image/jpe
         <div className="text-gray-500">
           {selectedFiles.length > 0 ? (
             selectedFiles.map((file) => (
-              <p key={file.name} className="text-sm font-medium text-primary">{file.name}</p>
+              <p key={file.name} className="text-sm font-medium text-primary">
+                {file.name}
+              </p>
             ))
           ) : isDragActive ? (
-            <p className="text-sm">Drop the files here...</p>
+            <p className="text-sm">Drop the Excel file here...</p>
           ) : (
             <p className="text-sm">
-              Select your files or drag and drop <br /> 
-              <span className="text-xs">PDF, DOC, DOCX accepted</span>
+              Select your Excel file or drag and drop <br />
+              <span className="text-xs">.xlsx, .xls files accepted</span>
             </p>
           )}
         </div>
@@ -53,13 +54,6 @@ const FileUpload = ({ onFileSelect, acceptedFormats = "application/pdf,image/jpe
       <BackupOutlinedIcon className="text-primary" fontSize="large" />
     </div>
   );
-};
-
-FileUpload.propTypes = {
-  onFileSelect: PropTypes.func.isRequired,
-  acceptedFormats: PropTypes.string, // Optionally accept specific file formats
-  section: PropTypes.string.isRequired, // Add section prop
-  index: PropTypes.number.isRequired, // Add index prop
 };
 
 export default FileUpload;

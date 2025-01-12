@@ -1,10 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
-import { getAllApplications } from '../../api/applicationApi';
-import { useAuth } from '../../context/AuthContext';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Loader from '../../components/loader/Loader';
-import Modal from '../../components/modal/Modal';
 import Tabs from '../../components/tabs/Tabs';
 import UserData from './components/UserData';
 import Qualifications from './components/Qualifications';
@@ -15,49 +11,41 @@ import Address from './components/Address';
 import Others from './components/Others';
 
 const ApplicationDetails = () => {
-  const { state } = useAuth();
-  const { token } = state;
-  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const userData = location.state?.applicationData;
 
-  const [pageIndex] = useState(0);
-  const [pageSize] = useState(10);
+  // Redirect if no application data
+  React.useEffect(() => {
+    if (!userData) {
+      navigate('/app/applications');
+    }
+  }, [userData, navigate]);
 
-  const usersQuery = useQuery({
-    queryKey: ['applications', pageIndex, pageSize, id],
-    queryFn: () => getAllApplications(token, pageIndex + 1, pageSize, id),
-    onSuccess: (data) => {
-      if (data.data.status === 'success') {
-        console.log('hello');
-      }
-      //   setApplications(data?.data.data[0]);
-      //   console.log(data?.data.data[0]);
-    },
-    onError: (error) => {
-      console.error('Error fetching details:', error);
-    },
-  });
-  const userData = usersQuery.data?.data?.[0];
+  if (!userData) {
+    return <Loader />;
+  }
 
   const tabData = [
     {
       title: 'Applicant Data',
-      content: <UserData data={userData} refetch={usersQuery.refetch} />,
+      content: <UserData data={userData} />,
     },
     {
       title: 'Address Data',
-      content: <Address data={userData} refetch={usersQuery.refetch} />,
+      content: <Address data={userData} />,
     },
     {
       title: 'Qualification',
-      content: <Qualifications data={userData} refetch={usersQuery.refetch} />,
+      content: <Qualifications data={userData} />,
     },
     {
       title: 'Academics',
-      content: <Academics data={userData} refetch={usersQuery.refetch} />,
+      content: <Academics data={userData} />,
     },
     {
       title: 'Experiences',
-      content: <Experiences data={userData} refetch={usersQuery.refetch} />,
+      content: <Experiences data={userData} />,
     },
     {
       title: 'Referrals',
@@ -72,14 +60,7 @@ const ApplicationDetails = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Application Details</h1>
-      {usersQuery.isLoading && <Loader />}
-      {usersQuery.isError && <p>Error: {usersQuery.error.message}</p>}
-
-      {usersQuery?.data?.data[0] ? (
-        <Tabs tabs={tabData} />
-      ) : (
-        <p>No Applicant details found...</p>
-      )}
+      <Tabs tabs={tabData} />
     </div>
   );
 };

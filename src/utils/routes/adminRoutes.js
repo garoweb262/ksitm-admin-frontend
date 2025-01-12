@@ -11,7 +11,7 @@ import Help from '../../views/help/Help.jsx';
 import Notification from '../../views/notification/Notification.jsx';
 import Payments from '../../views/payments/Payment.jsx';
 import Users from '../../views/users/Users.jsx';
-
+import PrincipalOfficer from '../../views/application/PrincipalOfficer.jsx';
 let prefix = '/app/';
 const adminRoutes = [
   {
@@ -21,6 +21,10 @@ const adminRoutes = [
   {
     path: `${prefix}applications`,
     element: <Application />,
+  },
+  {
+    path: `${prefix}principal-officers`,
+    element: <PrincipalOfficer />,
   },
   {
     path: `${prefix}applicants`,

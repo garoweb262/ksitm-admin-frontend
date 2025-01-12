@@ -9,7 +9,6 @@ import FileUpload from '../../../components/control/FileUpload';
 import Button from '../../../components/button/Button';
 import Tabs from '../../../components/tabs/Tabs';
 import { Edit, Delete } from '@mui/icons-material';
-import { useAuth } from '../../../context/AuthContext';
 import * as XLSX from 'xlsx';
 import {
   getAllQuestions,
@@ -18,18 +17,18 @@ import {
   updateQuestion,
   createBulkQuestion,
 } from '../../../api/questionsApi';
-import Modal from '../../../components/modal/Modal';
 import UpdateQuestionModal from './UpdateQuestionModal';
 
 const QuestionCard = () => {
-  const { state } = useAuth();
-  const { token } = state;
+  const token = localStorage.getItem('token');
+  // console.log(token);
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const formRef = useRef(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({
     text: '',
@@ -130,33 +129,109 @@ const QuestionCard = () => {
   };
 
   const handleBulkUpload = async (file) => {
+    if (!file) {
+      toast.error('Please select a file first');
+      return;
+    }
+
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+            raw: false,
+            defval: '',
+          });
 
-        const formattedQuestions = jsonData.map((row) => ({
-          text: row.text || '',
-          options: [
-            row.option1,
-            row.option2,
-            row.option3,
-            row.option4,
-            row.option5,
-          ].filter(Boolean),
-          correctAnswer: row.correctAnswer || '',
-          questionType: row.questionType || '',
-          department: row.department || '',
-        }));
+          if (!jsonData || jsonData.length === 0) {
+            toast.error('No data found in the uploaded file');
+            return;
+          }
 
-        createBulkQuestionMutation.mutate(formattedQuestions);
+          // Map the Excel data to the required format
+          const formattedQuestions = jsonData.map((row) => {
+            // Clean and process options
+            let optionsArray = [];
+            if (row.options) {
+              // First, split by semicolon to get individual options
+              optionsArray = row.options
+                .split(';')
+                .map((opt) => {
+                  // Preserve commas within each option
+                  let cleanOpt = opt.trim();
+                  // Remove surrounding quotes if they exist
+                  if (
+                    (cleanOpt.startsWith("'") && cleanOpt.endsWith("'")) ||
+                    (cleanOpt.startsWith('"') && cleanOpt.endsWith('"'))
+                  ) {
+                    cleanOpt = cleanOpt.slice(1, -1).trim();
+                  }
+                  return cleanOpt;
+                })
+                .filter((opt) => opt.length > 0); // Remove empty options
+            }
+
+            // Create formatted question object
+            const formattedQuestion = {
+              text: row.question?.trim() || '',
+              options: optionsArray,
+              correctAnswer: row.answer?.trim() || '',
+              questionType: row.type?.toLowerCase()?.trim() || '',
+              department:
+                row.type === 'departmental'
+                  ? row.department?.trim() || ''
+                  : 'general',
+            };
+
+            // Log for debugging
+            console.log('Processed options:', optionsArray);
+            return formattedQuestion;
+          });
+
+          // Validate the formatted questions
+          const validQuestions = formattedQuestions.filter((question) => {
+            const isValid =
+              question.text &&
+              question.options.length >= 2 &&
+              question.correctAnswer &&
+              question.questionType &&
+              (question.questionType === 'general' ||
+                (question.questionType === 'departmental' &&
+                  question.department));
+
+            if (!isValid) {
+              console.log('Invalid question:', question);
+            }
+
+            return isValid;
+          });
+
+          if (validQuestions.length === 0) {
+            toast.error(
+              'No valid questions found in the file. Please check the format.'
+            );
+            return;
+          }
+
+          console.log('Final formatted questions:', validQuestions);
+          createBulkQuestionMutation.mutate(validQuestions);
+        } catch (error) {
+          console.error('Error processing Excel data:', error);
+          toast.error('Error processing Excel file: ' + error.message);
+        }
       };
+
+      reader.onerror = () => {
+        toast.error('Error reading file');
+      };
+
       reader.readAsArrayBuffer(file);
     } catch (error) {
-      toast.error('Error processing file');
+      console.error('Error handling file:', error);
+      toast.error('Error processing file: ' + error.message);
     }
   };
 
@@ -281,13 +356,40 @@ const QuestionCard = () => {
       content: (
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            Upload an Excel file with columns: text, option1, option2, option3,
-            option4, option5, correctAnswer, questionType, department
+            Upload an Excel file with columns: question, options, answer, type,
+            department
+            <br />
+            <span className="text-xs text-gray-500">
+              - options should be comma-separated values
+              <br />
+              - type should be either 'general' or 'departmental'
+              <br />- department is required only for departmental questions
+            </span>
           </p>
           <FileUpload
             accept=".xlsx,.xls"
-            onChange={handleBulkUpload}
-            label="Upload Questions Excel File"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                setSelectedFile(e.target.files[0]);
+              }
+            }}
+          />
+          <Button
+            type="button"
+            label={
+              createBulkQuestionMutation.isLoading
+                ? 'Uploading...'
+                : 'Upload Questions'
+            }
+            onClick={() => {
+              if (selectedFile) {
+                handleBulkUpload(selectedFile);
+              } else {
+                toast.error('Please select a file first');
+              }
+            }}
+            disabled={createBulkQuestionMutation.isLoading}
+            className="mt-4 w-full"
           />
         </div>
       ),

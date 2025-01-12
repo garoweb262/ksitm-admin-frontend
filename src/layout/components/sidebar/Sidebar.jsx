@@ -10,6 +10,7 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'; // Payment
 import { useState } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
+
 // Grouping the menu items
 const menuSections = [
   {
@@ -20,6 +21,11 @@ const menuSections = [
         name: 'Application',
         path: '/app/applications',
         icon: <DescriptionIcon />,
+      },
+      {
+        name: 'Principal Officers Application',
+        path: '/app/principal-officers',
+        icon: <PersonIcon />,
       },
       { name: 'Exams', path: '/app/exams', icon: <SchoolIcon /> },
       { name: 'Exams Results', path: '/app/exam-results', icon: <GradeIcon /> },

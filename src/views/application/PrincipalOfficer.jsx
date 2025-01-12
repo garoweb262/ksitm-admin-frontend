@@ -17,7 +17,7 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-const Application = () => {
+const PrincipalOfficer = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
   const { token } = state;
@@ -44,34 +44,8 @@ const Application = () => {
   });
 
   const roleOptions = [
-    { value: 'Senior Lecturer', label: 'Senior Lecturer' },
-    { value: 'Lecturer I', label: 'Lecturer I' },
-    { value: 'Lecturer II', label: 'Lecturer II' },
-    { value: 'Lecturer III', label: 'Lecturer III' },
-    { value: 'Senior Instructor', label: 'Senior Instructor' },
-    { value: 'Technologist I', label: 'Technologist I' },
-    { value: 'Lecturer IM', label: 'Lecturer IM' },
-    { value: 'Lecturer IIE', label: 'Lecturer IIE' },
-    { value: 'Lecturer IE', label: 'Lecturer IE' },
-    { value: 'Lecturer IIM', label: 'Lecturer IIM' },
-    { value: 'Lecturer IIL', label: 'Lecturer IIL' },
-  ];
-
-  const departments = [
-    {
-      value: 'Library and Information Science',
-      label: 'Library and information science',
-    },
-    { value: 'Computer Engineering', label: 'Computer engineering' },
-    { value: 'Computer Science', label: 'Computer science' },
-    { value: 'Electrical Engineering', label: 'Electrical engineering' },
-    { value: 'Accountancy', label: 'Accountancy' },
-  ];
-
-  const faculties = [
-    { value: 'Technology', label: 'Technology' },
-    { value: 'Management', label: 'Management' },
-    { value: 'General Studies', label: 'General Studies' },
+    { value: 'Rector', label: 'Rector' },
+    { value: 'Bursar', label: 'Bursar' },
   ];
 
   const openModal = (content) => {
@@ -92,15 +66,18 @@ const Application = () => {
         token,
         pageIndex + 1,
         pageSize,
-        filters
+        {
+          ...filters,
+          faculty: 'Principal Officers',
+          role: filters.role || ['Rector', 'Bursar'],
+        }
       );
 
-      // Filter out Principal Officers and their roles
+      // Filter data to only include Rector and Bursar from Principal Officers
       const filteredData = response.data.filter(
         (item) =>
-          item.userId?.faculty !== 'Principal Officers' &&
-          item.userId?.role !== 'Rector' &&
-          item.userId?.role !== 'Bursar'
+          item.userId?.faculty === 'Principal Officers' &&
+          (item.userId?.role === 'Rector' || item.userId?.role === 'Bursar')
       );
 
       setData(filteredData || []);
@@ -328,7 +305,9 @@ const Application = () => {
   return (
     <>
       <div className="flex justify-between m-8 space-x-4 items-start">
-        <p className="text-primary text-2xl font-bold">Applications</p>
+        <p className="text-primary text-2xl font-bold">
+          Principal Officers Applications
+        </p>
         <FilterSearch>
           <div className="grid grid-cols-3 gap-4">
             <InputField
@@ -346,27 +325,13 @@ const Application = () => {
               placeholder="Enter Application ID"
             />
             <SelectField
-              label="Faculty"
-              name="faculty"
-              value={filters.faculty}
-              options={[{ value: '', label: 'All Faculties' }, ...faculties]}
-              onChange={handleFilterChange}
-            />
-            <SelectField
-              label="Department"
-              name="department"
-              value={filters.department}
-              options={[
-                { value: '', label: 'All Departments' },
-                ...departments,
-              ]}
-              onChange={handleFilterChange}
-            />
-            <SelectField
               label="Role"
               name="role"
               value={filters.role}
-              options={[{ value: '', label: 'All Roles' }, ...roleOptions]}
+              options={[
+                { value: '', label: 'All Principal Officers' },
+                ...roleOptions,
+              ]}
               onChange={handleFilterChange}
             />
             <Button
@@ -375,10 +340,7 @@ const Application = () => {
               onClick={() => {
                 setFilters({
                   applicationId: '',
-                  status: '',
-                  stage: '',
-                  faculty: '',
-                  department: '',
+                  faculty: 'Principal Officers',
                   role: '',
                   userId: '',
                 });
@@ -386,7 +348,6 @@ const Application = () => {
               }}
               className="mt-6"
             />
-
             <Button
               type="button"
               label="Export Filtered"
@@ -424,4 +385,4 @@ const Application = () => {
   );
 };
 
-export default Application;
+export default PrincipalOfficer;
