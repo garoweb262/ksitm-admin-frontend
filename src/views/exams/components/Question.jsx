@@ -197,6 +197,10 @@ const QuestionCard = () => {
                 row.type === 'departmental'
                   ? row.department?.trim() || ''
                   : 'general',
+              role:
+                row.department === 'General Studies'
+                  ? row.role?.trim() || ''
+                  : '',
             };
 
             // Log for debugging
