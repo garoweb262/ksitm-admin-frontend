@@ -250,6 +250,9 @@ const Application = () => {
         // Map all API data to Excel-friendly format
         const mappedData = response.data.map((item) => ({
           UserID: item.userId.userId || 'N/A',
+          Faculty: item.userId.faculty || 'N/A',
+          Department: item.userId.department || 'N/A',
+          Role: item.userId.role || 'N/A',
           Certificate:
             item.academicQualification
               ?.map((qual) => qual.certificate)
