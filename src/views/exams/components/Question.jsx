@@ -50,6 +50,19 @@ const QuestionCard = () => {
     { value: 'General Studies ', label: 'General Studies' },
   ];
 
+  const role = [
+    { value: 'Lecturer IM', label: 'Lecturer I Mechanical Engineering' },
+    {
+      value: 'Lecturer IE',
+      label: 'Lecturer I Education (Psychology/Sociology)',
+    },
+    { value: 'Lecturer IIE', label: 'Lecturer II Entrepreneurship' },
+    { value: 'Lecturer IIM', label: 'Lecturer II  Mathematics' },
+    {
+      value: 'Lecturer IIL',
+      label: 'Lecturer II (Business Administration/Law)',
+    },
+  ];
   const questionTypes = [
     { value: 'general', label: 'General' },
     { value: 'departmental', label: 'Departmental' },
@@ -295,7 +308,15 @@ const QuestionCard = () => {
             ]}
             onChange={handleInputChange}
           />
-
+          {formData.department === 'General Studies' && (
+            <SelectField
+              label="Role"
+              name="role"
+              value={formData.role}
+              options={[{ value: '', label: 'Select Role' }, ...role]}
+              onChange={handleInputChange}
+            />
+          )}
           <SelectField
             label="Question Type"
             name="questionType"
@@ -437,6 +458,11 @@ const QuestionCard = () => {
                 <span className="font-semibold">Department:</span>{' '}
                 {question.department}
               </div>
+              {question.department === 'General Studies' && (
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">Role:</span> {question.role}
+                </div>
+              )}
             </div>
           </Card>
         ))}
