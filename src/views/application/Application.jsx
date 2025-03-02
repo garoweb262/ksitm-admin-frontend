@@ -406,7 +406,19 @@ const Application = () => {
       ) : error ? (
         <p className="text-red-500">Error loading data: {error.message}</p>
       ) : data.length === 0 ? (
-        <EmptyTable columns={columns} message="No application records found." />
+        <EmptyTable
+          columns={columns}
+          message="No application records found."
+          nav={nav}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setPageIndex(newPage)}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setPageIndex(0);
+          }}
+        />
       ) : (
         <ReusableTable
           columns={columns}

@@ -1,95 +1,116 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { useTable, usePagination } from "react-table";
-import Button from "../button/Button";
-import { ChevronLeft, ChevronRight, Inbox } from "@mui/icons-material";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { useTable, usePagination } from 'react-table';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 const EmptyTable = ({
   columns,
-  message, // Add message prop for custom messages
-  data = [], // Default to an empty array if no data is passed
+  message,
+  data = [],
   pageIndex,
   pageSize,
   totalPages,
   onPageChange,
   onPageSizeChange,
+  nav,
 }) => {
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex },
-      manualPagination: true,
-      pageCount: totalPages,
-    },
-    usePagination
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    state: { pageIndex: currentPageIndex },
-  } = tableInstance;
-
   return (
     <div className="m-10 rounded">
-      <table {...getTableProps()} className="min-w-full bg-gray-100">
-        <thead className="bg-gray-200">
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()} key={column.id} className="p-4 text-left">
-                  {column.render("Header")}
-                </th>
+      {/* Header actions: Search and Buttons */}
+      <div className="flex justify-end items-center mb-4">
+        <div></div>
+        <div className="space-x-4">
+          <div className="flex flex-row space-x-4">
+            {nav &&
+              nav.map((na, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={na.onClick}
+                >
+                  {na.icon && <span>{na.icon}</span>}
+                  <span className="text-primary text-sm">{na.label}</span>
+                </div>
               ))}
-            </tr>
+          </div>
+        </div>
+      </div>
+
+      <table className="min-w-full bg-gray-100">
+        <thead className="bg-gray-200">
+          {columns.map((column, index) => (
+            <th
+              key={index}
+              className="p-4 text-start border border-b-2 border-gray-300"
+            >
+              {column.Header}
+            </th>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()} className="w-full py-6 md:w-60 bg-gray-200 ">
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} className="p-4 font-semibold text-center">
-                {message} {/* Display the message prop */}
-              </td>
-            </tr>
-          ) : (
-            page.map(row => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()} key={row.id}>
-                  {row.cells.map(cell => (
-                    <td {...cell.getCellProps()} key={cell.column.id} className="p-4">
-                      {cell.render("Cell")}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })
-          )}
+        <tbody className="w-full py-6 md:w-60 bg-gray-200">
+          <tr>
+            <td
+              colSpan={columns.length}
+              className="p-4 font-semibold text-center"
+            >
+              {message}
+            </td>
+          </tr>
         </tbody>
       </table>
 
-      {/* Pagination (Optional) */}
-      {/* Add your pagination UI here if needed */}
+      {/* Pagination */}
+      <div className="flex justify-between items-center p-4">
+        <select
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          className="p-2 rounded-md"
+        >
+          {[10, 20, 30, 50].map((size) => (
+            <option key={size} value={size}>
+              Show {size}
+            </option>
+          ))}
+        </select>
+        <div className="flex space-x-1">
+          <button
+            onClick={() => onPageChange(pageIndex - 1)}
+            disabled={pageIndex === 0}
+          >
+            <ChevronLeft />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => onPageChange(i)}
+              className={`px-3 py-1 rounded ${
+                i === pageIndex ? 'bg-primary text-white' : 'bg-gray-300'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => onPageChange(pageIndex + 1)}
+            disabled={pageIndex === totalPages - 1}
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
 EmptyTable.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.object).isRequired,
-  data: PropTypes.arrayOf(PropTypes.object).isRequired,
-  message: PropTypes.string, // Add prop type for message
+  message: PropTypes.string,
   pageIndex: PropTypes.number.isRequired,
   pageSize: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
   onPageSizeChange: PropTypes.func.isRequired,
+  nav: PropTypes.array,
 };
-
 
 export default EmptyTable;

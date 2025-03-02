@@ -47,7 +47,7 @@ const QuestionCard = () => {
     { value: 'Computer Science', label: 'Computer science' },
     { value: 'Electrical Engineering', label: 'Electrical engineering' },
     { value: 'Accountancy', label: 'Accountancy' },
-    { value: 'General Studies ', label: 'General Studies' },
+    { value: 'GS-Departments', label: 'General Studies' },
   ];
 
   const role = [
@@ -198,7 +198,7 @@ const QuestionCard = () => {
                   ? row.department?.trim() || ''
                   : 'general',
               role:
-                row.department === 'General Studies'
+                row.department === 'GS-Departments'
                   ? row.role?.trim() || ''
                   : '',
             };
@@ -312,7 +312,7 @@ const QuestionCard = () => {
             ]}
             onChange={handleInputChange}
           />
-          {formData.department === 'General Studies' && (
+          {formData.department === 'GS-Departments' && (
             <SelectField
               label="Role"
               name="role"
